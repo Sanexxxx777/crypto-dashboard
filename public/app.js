@@ -1033,14 +1033,12 @@ class CryptoDashboard {
     document.getElementById('heatmapView').classList.add('hidden');
     document.getElementById('sectorsView').classList.add('hidden');
     
-    document.getElementById('refreshBtn').classList.add('loading');
     document.querySelector('.update-dot').classList.remove('error');
   }
 
   hideLoading() {
     document.getElementById('loadingState').classList.add('hidden');
-    document.getElementById('refreshBtn').classList.remove('loading');
-    
+
     // Show appropriate view
     this.switchView(this.currentView);
   }
@@ -1053,7 +1051,6 @@ class CryptoDashboard {
     document.getElementById('loadingState').classList.add('hidden');
     document.getElementById('errorState').classList.remove('hidden');
     document.getElementById('errorMessage').textContent = message;
-    document.getElementById('refreshBtn').classList.remove('loading');
     document.querySelector('.update-dot').classList.add('error');
   }
 
