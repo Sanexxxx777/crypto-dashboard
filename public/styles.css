@@ -981,7 +981,7 @@ h1, h2, h3, .page-title, .card-title, .summary-value, .sector-name {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 20px;
-  margin-bottom: 32px;
+  margin-bottom: 40px;
 }
 
 .summary-card {
@@ -1032,6 +1032,7 @@ h1, h2, h3, .page-title, .card-title, .summary-value, .sector-name {
   border: 1px solid var(--border-color);
   border-radius: 16px;
   overflow: hidden;
+  margin-top: 8px;
 }
 
 .card-header {
