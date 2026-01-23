@@ -57,6 +57,12 @@
           </svg>
           <span>All Sectors</span>
         </button>
+        <button class="nav-item" data-view="momentum">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+          </svg>
+          <span>Momentum</span>
+        </button>
       </nav>
 
       <!-- Sidebar Links -->
@@ -113,6 +119,11 @@
           <p class="page-subtitle" id="pageSubtitle">20 sectors • Real-time data from CoinGecko</p>
         </div>
         <div class="header-right">
+          <div class="market-state-indicator" id="marketStateIndicator">
+            <span class="market-state-icon">➡️</span>
+            <span class="market-state-label">NEUTRAL</span>
+            <span class="market-state-btc">BTC: 0%</span>
+          </div>
           <div class="search-box">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="11" cy="11" r="8"/>
@@ -250,6 +261,79 @@
           <!-- Dynamic sector cards -->
         </div>
       </section>
+
+      <!-- Momentum View -->
+      <section class="view-container hidden" id="momentumView">
+        <!-- Market State Banner -->
+        <div class="momentum-banner" id="momentumBanner">
+          <div class="momentum-banner-left">
+            <span class="banner-state-icon">➡️</span>
+            <div class="banner-state-info">
+              <span class="banner-state-label">MARKET STATE: NEUTRAL</span>
+              <span class="banner-state-desc">BTC не показывает сильного движения</span>
+            </div>
+          </div>
+          <div class="momentum-banner-stats">
+            <div class="banner-stat">
+              <span class="banner-stat-value" id="bannerPhaseCount">0</span>
+              <span class="banner-stat-label">Bull Phases</span>
+            </div>
+            <div class="banner-stat">
+              <span class="banner-stat-value" id="bannerAvgDuration">0d</span>
+              <span class="banner-stat-label">Avg Duration</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Rally Performers -->
+        <div class="momentum-card">
+          <div class="card-header">
+            <h2 class="card-title">🏆 Top Rally Performers</h2>
+            <span class="card-subtitle">Токены с лучшей динамикой во время бычьих фаз</span>
+          </div>
+          <div class="table-container">
+            <table class="momentum-table">
+              <thead>
+                <tr>
+                  <th class="th-rank">#</th>
+                  <th class="th-token">Token</th>
+                  <th class="th-sector">Sector</th>
+                  <th class="th-score">Score</th>
+                  <th class="th-beta">Beta</th>
+                  <th class="th-consistency">Consistency</th>
+                  <th class="th-avg-gain">Avg Gain</th>
+                </tr>
+              </thead>
+              <tbody id="momentumTableBody">
+                <!-- Dynamic content -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Momentum Grid -->
+        <div class="momentum-grid">
+          <!-- Sector Momentum -->
+          <div class="momentum-card">
+            <div class="card-header">
+              <h2 class="card-title">📊 Sector Momentum</h2>
+            </div>
+            <div class="sector-momentum-list" id="sectorMomentumList">
+              <!-- Dynamic content -->
+            </div>
+          </div>
+
+          <!-- Recent Bull Phases -->
+          <div class="momentum-card">
+            <div class="card-header">
+              <h2 class="card-title">📈 Recent Bull Phases</h2>
+            </div>
+            <div class="bull-phases-list" id="bullPhasesList">
+              <!-- Dynamic content -->
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 
@@ -309,6 +393,32 @@
             <span class="change-value" id="modal30d">—</span>
           </div>
         </div>
+        <!-- Momentum Section -->
+        <div class="modal-momentum hidden" id="modalMomentum">
+          <div class="modal-momentum-header">
+            <span class="momentum-badge" id="modalMomentumBadge">A</span>
+            <div class="momentum-score-info">
+              <span class="momentum-score-value" id="modalMomentumScore">0</span>
+              <span class="momentum-score-label">Momentum Score</span>
+            </div>
+          </div>
+          <div class="modal-momentum-stats">
+            <div class="momentum-stat">
+              <span class="momentum-stat-label">Beta</span>
+              <span class="momentum-stat-value" id="modalMomentumBeta">0x</span>
+            </div>
+            <div class="momentum-stat">
+              <span class="momentum-stat-label">Consistency</span>
+              <span class="momentum-stat-value" id="modalMomentumConsistency">0%</span>
+            </div>
+            <div class="momentum-stat">
+              <span class="momentum-stat-label">Avg Gain</span>
+              <span class="momentum-stat-value" id="modalMomentumAvgGain">0%</span>
+            </div>
+          </div>
+          <p class="momentum-description" id="modalMomentumDesc">—</p>
+        </div>
+
         <div class="modal-links">
           <a class="modal-link" id="modalCoinGecko" href="#" target="_blank">
             View on CoinGecko →

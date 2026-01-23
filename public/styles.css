@@ -2143,3 +2143,464 @@ h1, h2, h3, .page-title, .card-title, .summary-value, .sector-name {
 .animated-number {
   animation: countUp 0.5s ease-out;
 }
+
+/* ============================================
+   MOMENTUM VIEW STYLES
+   ============================================ */
+
+/* Market State Indicator in Header */
+.market-state-indicator {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 12px;
+  font-size: 13px;
+  cursor: default;
+  transition: all 0.3s ease;
+}
+
+.market-state-icon {
+  font-size: 16px;
+}
+
+.market-state-label {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.market-state-btc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.market-state-btc.positive {
+  color: var(--accent-green);
+}
+
+.market-state-btc.negative {
+  color: var(--accent-red);
+}
+
+/* Momentum Banner */
+.momentum-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  background: rgba(168, 85, 247, 0.15);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  border-radius: 16px;
+  margin-bottom: 24px;
+}
+
+.momentum-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.banner-state-icon {
+  font-size: 32px;
+}
+
+.banner-state-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.banner-state-label {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.banner-state-desc {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.momentum-banner-stats {
+  display: flex;
+  gap: 32px;
+}
+
+.banner-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.banner-stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.banner-stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Momentum Card */
+.momentum-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.momentum-card .card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.momentum-card .card-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Momentum Table */
+.momentum-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.momentum-table th,
+.momentum-table td {
+  padding: 14px 16px;
+  text-align: left;
+}
+
+.momentum-table th {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--bg-secondary);
+}
+
+.momentum-table tbody tr {
+  border-bottom: 1px solid var(--border-light);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.momentum-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.momentum-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.th-score { width: 100px; }
+.th-beta { width: 80px; text-align: right; }
+.th-consistency { width: 100px; text-align: right; }
+.th-avg-gain { width: 100px; text-align: right; }
+
+/* Momentum Score Badge */
+.momentum-score-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  margin-right: 8px;
+}
+
+.momentum-score-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Sector Badge Small */
+.sector-badge-small {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  border: 1px solid;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+/* Beta, Consistency, Avg Gain values */
+.beta-value,
+.consistency-value,
+.avg-gain-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+}
+
+.beta-value {
+  color: var(--accent-tertiary);
+}
+
+.consistency-value {
+  color: var(--text-secondary);
+}
+
+.avg-gain-value.positive {
+  color: var(--accent-green);
+}
+
+/* Momentum Grid */
+.momentum-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+/* Sector Momentum */
+.sector-momentum-list {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sector-momentum-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sector-momentum-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sector-momentum-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.sector-momentum-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sector-momentum-bar-bg {
+  height: 8px;
+  background: var(--bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.sector-momentum-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* Bull Phases List */
+.bull-phases-list {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.bull-phase-item {
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  border-left: 3px solid var(--accent-green);
+}
+
+.bull-phase-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.bull-phase-date {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.bull-phase-btc {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.bull-phase-btc.positive {
+  color: var(--accent-green);
+}
+
+.bull-phase-duration {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.bull-phase-top {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  flex-wrap: wrap;
+}
+
+.bull-phase-top-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.bull-phase-top-tokens {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Modal Momentum Section */
+.modal-momentum {
+  margin: 20px 0;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.modal-momentum-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.momentum-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.momentum-score-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.momentum-score-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.momentum-score-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-momentum-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.momentum-stat {
+  text-align: center;
+  padding: 10px;
+  background: var(--bg-card);
+  border-radius: 8px;
+}
+
+.momentum-stat-label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.momentum-stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.momentum-description {
+  font-size: 13px;
+  color: var(--text-secondary);
+  text-align: center;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .momentum-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .momentum-banner {
+    flex-direction: column;
+    gap: 20px;
+    text-align: center;
+  }
+
+  .momentum-banner-left {
+    flex-direction: column;
+  }
+
+  .momentum-banner-stats {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .market-state-indicator {
+    display: none;
+  }
+
+  .modal-momentum-stats {
+    grid-template-columns: 1fr;
+  }
+}

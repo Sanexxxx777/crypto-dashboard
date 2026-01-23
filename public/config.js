@@ -11,6 +11,33 @@ const CONFIG = {
   MAX_RETRIES: 3, // Max retry attempts for rate limiting
 };
 
+// Momentum Rating Configuration
+const MOMENTUM_CONFIG = {
+  // Score tier thresholds and colors
+  TIERS: {
+    S: { min: 90, color: '#FFD700', label: 'S', description: 'Исторически пампится сильнее всех' },
+    A: { min: 75, color: '#22C55E', label: 'A', description: 'Сильный участник ралли' },
+    B: { min: 60, color: '#3B82F6', label: 'B', description: 'Выше среднего' },
+    C: { min: 45, color: '#A855F7', label: 'C', description: 'Средний, следует за рынком' },
+    D: { min: 30, color: '#F97316', label: 'D', description: 'Слабая корреляция' },
+    F: { min: 0, color: '#EF4444', label: 'F', description: 'Минимальная корреляция с ралли' }
+  },
+
+  // Market state colors
+  MARKET_STATE: {
+    bull: { color: '#22C55E', bgColor: 'rgba(34, 197, 94, 0.15)', icon: '🚀' },
+    neutral: { color: '#A855F7', bgColor: 'rgba(168, 85, 247, 0.15)', icon: '➡️' },
+    bear: { color: '#EF4444', bgColor: 'rgba(239, 68, 68, 0.15)', icon: '🐻' }
+  },
+
+  // Beta interpretation
+  BETA_LEVELS: {
+    high: { min: 2.5, description: 'Высокий бета' },
+    medium: { min: 1.5, description: 'Средний бета' },
+    low: { min: 0, description: 'Низкий бета' }
+  }
+};
+
 // Sector colors for visual identification
 const SECTOR_COLORS = {
   'Layer 1':            '#FFD700',
@@ -164,6 +191,7 @@ const SECTORS = {
 
 // Export for use in app.js
 window.CONFIG = CONFIG;
+window.MOMENTUM_CONFIG = MOMENTUM_CONFIG;
 window.SECTOR_COLORS = SECTOR_COLORS;
 window.SECTOR_ICONS = SECTOR_ICONS;
 window.SECTORS = SECTORS;

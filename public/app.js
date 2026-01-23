@@ -48,7 +48,34 @@ const TRANSLATIONS = {
     volume24h: '24ч Объём',
     high24h: '24ч Макс',
     low24h: '24ч Мин',
-    athChange: 'От ATH'
+    athChange: 'От ATH',
+    // Momentum
+    momentum: 'Momentum',
+    momentumTitle: 'Momentum Рейтинг',
+    momentumSubtitle: 'Анализ исторической динамики во время ралли',
+    marketState: 'Состояние рынка',
+    bullPhases: 'Бычьих фаз',
+    avgDuration: 'Ср. длительность',
+    topRallyPerformers: 'Топ Rally Performers',
+    tokensWithBestDynamics: 'Токены с лучшей динамикой во время бычьих фаз',
+    sectorMomentum: 'Momentum секторов',
+    recentBullPhases: 'Последние бычьи фазы',
+    beta: 'Бета',
+    consistency: 'Консистентность',
+    avgGain: 'Ср. рост',
+    momentumScore: 'Momentum Score',
+    tierS: 'Исторически пампится сильнее всех',
+    tierA: 'Сильный участник ралли',
+    tierB: 'Выше среднего',
+    tierC: 'Средний, следует за рынком',
+    tierD: 'Слабая корреляция',
+    tierF: 'Минимальная корреляция с ралли',
+    marketBull: 'БЫЧИЙ',
+    marketNeutral: 'НЕЙТРАЛЬНЫЙ',
+    marketBear: 'МЕДВЕЖИЙ',
+    btcShowsStrength: 'BTC показывает сильный рост',
+    btcNoMovement: 'BTC не показывает сильного движения',
+    btcShowsWeakness: 'BTC показывает слабость'
   },
   en: {
     language: 'Language',
@@ -93,7 +120,34 @@ const TRANSLATIONS = {
     volume24h: '24h Volume',
     high24h: '24h High',
     low24h: '24h Low',
-    athChange: 'ATH Change'
+    athChange: 'ATH Change',
+    // Momentum
+    momentum: 'Momentum',
+    momentumTitle: 'Momentum Rating',
+    momentumSubtitle: 'Historical rally performance analysis',
+    marketState: 'Market State',
+    bullPhases: 'Bull Phases',
+    avgDuration: 'Avg Duration',
+    topRallyPerformers: 'Top Rally Performers',
+    tokensWithBestDynamics: 'Tokens with best performance during bull phases',
+    sectorMomentum: 'Sector Momentum',
+    recentBullPhases: 'Recent Bull Phases',
+    beta: 'Beta',
+    consistency: 'Consistency',
+    avgGain: 'Avg Gain',
+    momentumScore: 'Momentum Score',
+    tierS: 'Historically pumps the hardest',
+    tierA: 'Strong rally participant',
+    tierB: 'Above average',
+    tierC: 'Average, follows market',
+    tierD: 'Weak correlation',
+    tierF: 'Minimal rally correlation',
+    marketBull: 'BULL',
+    marketNeutral: 'NEUTRAL',
+    marketBear: 'BEAR',
+    btcShowsStrength: 'BTC shows strong growth',
+    btcNoMovement: 'BTC shows no strong movement',
+    btcShowsWeakness: 'BTC shows weakness'
   }
 };
 
@@ -110,6 +164,11 @@ class CryptoDashboard {
     this.refreshInterval = null;
     this.isLoading = false;
 
+    // Momentum data
+    this.momentumData = null;
+    this.marketState = null;
+    this.bullPhases = null;
+
     this.init();
   }
 
@@ -119,6 +178,7 @@ class CryptoDashboard {
     this.loadSidebarState();
     this.loadLanguage();
     this.loadData();
+    this.loadMomentumData();
     this.startAutoRefresh();
   }
 
@@ -310,6 +370,9 @@ class CryptoDashboard {
         break;
       case 'sectors':
         this.renderSectors();
+        break;
+      case 'momentum':
+        this.renderMomentum();
         break;
     }
   }
@@ -599,6 +662,7 @@ class CryptoDashboard {
     document.getElementById('overviewView').classList.toggle('hidden', view !== 'overview');
     document.getElementById('heatmapView').classList.toggle('hidden', view !== 'heatmap');
     document.getElementById('sectorsView').classList.toggle('hidden', view !== 'sectors');
+    document.getElementById('momentumView').classList.toggle('hidden', view !== 'momentum');
 
     this.renderCurrentView();
   }
@@ -788,7 +852,34 @@ class CryptoDashboard {
 
     document.getElementById('modalCoinGecko').href = `https://www.coingecko.com/en/coins/${token.id}`;
 
+    // Momentum data
+    this.updateModalMomentum(tokenId);
+
     modal.classList.remove('hidden');
+  }
+
+  updateModalMomentum(tokenId) {
+    const momentumSection = document.getElementById('modalMomentum');
+    if (!momentumSection) return;
+
+    const tokenMomentum = this.momentumData?.tokens?.find(t => t.id === tokenId);
+
+    if (!tokenMomentum) {
+      momentumSection.classList.add('hidden');
+      return;
+    }
+
+    momentumSection.classList.remove('hidden');
+
+    const tier = this.getTierInfo(tokenMomentum.score);
+
+    document.getElementById('modalMomentumBadge').textContent = tokenMomentum.tier;
+    document.getElementById('modalMomentumBadge').style.background = tier.color;
+    document.getElementById('modalMomentumScore').textContent = tokenMomentum.score;
+    document.getElementById('modalMomentumBeta').textContent = `${tokenMomentum.beta.toFixed(2)}x`;
+    document.getElementById('modalMomentumConsistency').textContent = `${tokenMomentum.consistency.toFixed(0)}%`;
+    document.getElementById('modalMomentumAvgGain').textContent = `+${tokenMomentum.avgGain.toFixed(1)}%`;
+    document.getElementById('modalMomentumDesc').textContent = this.getTierDescription(tokenMomentum.tier);
   }
 
   closeModal() {
@@ -922,7 +1013,8 @@ class CryptoDashboard {
     const titles = {
       'overview': [this.t('marketOverview'), this.t('sectorsSubtitle')],
       'heatmap': [this.t('performanceHeatmap'), this.t('heatmapSubtitle')],
-      'sectors': [this.t('allSectors'), this.t('allSectorsSubtitle')]
+      'sectors': [this.t('allSectors'), this.t('allSectorsSubtitle')],
+      'momentum': [this.t('momentumTitle'), this.t('momentumSubtitle')]
     };
     document.getElementById('pageTitle').textContent = titles[this.currentView][0];
     document.getElementById('pageSubtitle').textContent = titles[this.currentView][1];
@@ -1063,13 +1155,250 @@ class CryptoDashboard {
     `;
   }
 
+  // ==================== MOMENTUM SYSTEM ====================
+
+  async loadMomentumData() {
+    try {
+      // Load all momentum data in parallel
+      const [momentumRes, marketStateRes, phasesRes] = await Promise.all([
+        fetch('/api/momentum'),
+        fetch('/api/market-state'),
+        fetch('/api/bull-phases?limit=10')
+      ]);
+
+      if (momentumRes.ok) {
+        this.momentumData = await momentumRes.json();
+      }
+
+      if (marketStateRes.ok) {
+        this.marketState = await marketStateRes.json();
+        this.renderMarketStateIndicator();
+      }
+
+      if (phasesRes.ok) {
+        this.bullPhases = await phasesRes.json();
+      }
+
+      // Re-render momentum view if active
+      if (this.currentView === 'momentum') {
+        this.renderMomentum();
+      }
+
+    } catch (error) {
+      console.error('Error loading momentum data:', error);
+    }
+  }
+
+  renderMarketStateIndicator() {
+    const indicator = document.getElementById('marketStateIndicator');
+    if (!indicator || !this.marketState) return;
+
+    const state = this.marketState.state || 'neutral';
+    const config = MOMENTUM_CONFIG.MARKET_STATE[state];
+    const btc24h = this.marketState.btc24h || 0;
+
+    const stateLabels = {
+      bull: this.t('marketBull'),
+      neutral: this.t('marketNeutral'),
+      bear: this.t('marketBear')
+    };
+
+    indicator.innerHTML = `
+      <span class="market-state-icon">${config.icon}</span>
+      <span class="market-state-label" style="color: ${config.color}">${stateLabels[state]}</span>
+      <span class="market-state-btc ${btc24h >= 0 ? 'positive' : 'negative'}">BTC: ${this.formatPercent(btc24h)}</span>
+    `;
+    indicator.style.background = config.bgColor;
+    indicator.style.borderColor = config.color;
+  }
+
+  renderMomentum() {
+    if (!this.momentumData) {
+      return;
+    }
+
+    this.renderMomentumBanner();
+    this.renderMomentumTable();
+    this.renderSectorMomentum();
+    this.renderBullPhases();
+  }
+
+  renderMomentumBanner() {
+    const banner = document.getElementById('momentumBanner');
+    if (!banner) return;
+
+    const state = this.marketState?.state || 'neutral';
+    const config = MOMENTUM_CONFIG.MARKET_STATE[state];
+
+    const stateLabels = {
+      bull: this.t('marketBull'),
+      neutral: this.t('marketNeutral'),
+      bear: this.t('marketBear')
+    };
+
+    const stateDescs = {
+      bull: this.t('btcShowsStrength'),
+      neutral: this.t('btcNoMovement'),
+      bear: this.t('btcShowsWeakness')
+    };
+
+    banner.style.background = config.bgColor;
+    banner.style.borderColor = config.color;
+
+    const bannerLeft = banner.querySelector('.momentum-banner-left');
+    if (bannerLeft) {
+      bannerLeft.innerHTML = `
+        <span class="banner-state-icon">${config.icon}</span>
+        <div class="banner-state-info">
+          <span class="banner-state-label" style="color: ${config.color}">${this.t('marketState')}: ${stateLabels[state]}</span>
+          <span class="banner-state-desc">${stateDescs[state]}</span>
+        </div>
+      `;
+    }
+
+    document.getElementById('bannerPhaseCount').textContent = this.momentumData?.phaseCount || 0;
+    document.getElementById('bannerAvgDuration').textContent = this.momentumData?.avgPhaseDuration || '0d';
+  }
+
+  renderMomentumTable() {
+    const tbody = document.getElementById('momentumTableBody');
+    if (!tbody || !this.momentumData?.tokens) return;
+
+    // Get sector for each token
+    const tokenSector = {};
+    Object.entries(SECTORS).forEach(([sector, tokens]) => {
+      tokens.forEach(tokenId => {
+        if (!tokenSector[tokenId]) {
+          tokenSector[tokenId] = sector;
+        }
+      });
+    });
+
+    tbody.innerHTML = this.momentumData.tokens.slice(0, 20).map((token, index) => {
+      const tier = this.getTierInfo(token.score);
+      const sector = tokenSector[token.id] || '—';
+      const coin = this.coinData.get(token.id);
+
+      return `
+        <tr data-token-id="${token.id}">
+          <td style="text-align: center; color: var(--text-muted);">${index + 1}</td>
+          <td>
+            <div class="token-info">
+              ${coin ? `<img class="token-icon" src="${coin.image}" alt="${token.symbol}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%23ddd%22/></svg>'">` : ''}
+              <div>
+                <div class="token-name">${coin?.name || token.symbol}</div>
+                <div class="token-symbol">${token.symbol}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="sector-badge-small" style="border-color: ${SECTOR_COLORS[sector] || '#666'}">
+              ${sector}
+            </span>
+          </td>
+          <td>
+            <span class="momentum-score-badge" style="background: ${tier.color}">${token.tier}</span>
+            <span class="momentum-score-number">${token.score}</span>
+          </td>
+          <td class="beta-value">${token.beta.toFixed(2)}x</td>
+          <td class="consistency-value">${token.consistency.toFixed(0)}%</td>
+          <td class="avg-gain-value positive">+${token.avgGain.toFixed(1)}%</td>
+        </tr>
+      `;
+    }).join('');
+
+    // Add click handlers
+    tbody.querySelectorAll('tr').forEach(row => {
+      row.addEventListener('click', () => this.showTokenModal(row.dataset.tokenId));
+    });
+  }
+
+  renderSectorMomentum() {
+    const container = document.getElementById('sectorMomentumList');
+    if (!container || !this.momentumData?.sectors) return;
+
+    const maxScore = Math.max(...Object.values(this.momentumData.sectors).map(s => s.avgScore));
+
+    container.innerHTML = Object.entries(this.momentumData.sectors)
+      .sort((a, b) => b[1].avgScore - a[1].avgScore)
+      .map(([sector, data]) => {
+        const widthPercent = (data.avgScore / maxScore) * 100;
+        const color = SECTOR_COLORS[sector] || '#666';
+
+        return `
+          <div class="sector-momentum-item">
+            <div class="sector-momentum-header">
+              <span class="sector-momentum-name">${sector}</span>
+              <span class="sector-momentum-score">${data.avgScore}</span>
+            </div>
+            <div class="sector-momentum-bar-bg">
+              <div class="sector-momentum-bar" style="width: ${widthPercent}%; background: ${color}"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+  }
+
+  renderBullPhases() {
+    const container = document.getElementById('bullPhasesList');
+    if (!container || !this.bullPhases?.phases) return;
+
+    container.innerHTML = this.bullPhases.phases.map(phase => {
+      const startDate = new Date(phase.startTime);
+      const endDate = new Date(phase.endTime);
+      const dateStr = `${startDate.toLocaleDateString('ru-RU', { month: 'short', day: 'numeric' })} - ${endDate.toLocaleDateString('ru-RU', { month: 'short', day: 'numeric' })}`;
+
+      const topPerformersStr = phase.topPerformers
+        .slice(0, 3)
+        .map(p => `${p.symbol} +${p.gain.toFixed(0)}%`)
+        .join(', ');
+
+      return `
+        <div class="bull-phase-item">
+          <div class="bull-phase-header">
+            <span class="bull-phase-date">${dateStr}</span>
+            <span class="bull-phase-btc positive">BTC +${phase.btcGain.toFixed(1)}%</span>
+          </div>
+          <div class="bull-phase-duration">${phase.duration}</div>
+          <div class="bull-phase-top">
+            <span class="bull-phase-top-label">Top:</span>
+            <span class="bull-phase-top-tokens">${topPerformersStr}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  getTierInfo(score) {
+    const tiers = MOMENTUM_CONFIG.TIERS;
+    for (const [key, tier] of Object.entries(tiers)) {
+      if (score >= tier.min) {
+        return { ...tier, key };
+      }
+    }
+    return tiers.F;
+  }
+
+  getTierDescription(tier) {
+    const descMap = {
+      S: 'tierS',
+      A: 'tierA',
+      B: 'tierB',
+      C: 'tierC',
+      D: 'tierD',
+      F: 'tierF'
+    };
+    return this.t(descMap[tier] || 'tierF');
+  }
+
   startAutoRefresh() {
     if (this.refreshInterval) {
       clearInterval(this.refreshInterval);
     }
-    
+
     this.refreshInterval = setInterval(() => {
       this.loadData();
+      this.loadMomentumData();
     }, CONFIG.REFRESH_INTERVAL);
   }
 
