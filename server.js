@@ -630,6 +630,52 @@ app.get('/api/cache-status', (req, res) => {
 
 // ==================== MOMENTUM API ENDPOINTS ====================
 
+// Fear & Greed Index cache
+let fearGreedCache = { data: null, timestamp: 0 };
+const FEAR_GREED_TTL = 30 * 60 * 1000; // 30 minutes
+
+// Get Fear & Greed Index
+app.get('/api/fear-greed', async (req, res) => {
+  try {
+    // Check cache
+    if (fearGreedCache.data && (Date.now() - fearGreedCache.timestamp < FEAR_GREED_TTL)) {
+      return res.json(fearGreedCache.data);
+    }
+
+    // Fetch from Alternative.me API
+    const response = await fetch('https://api.alternative.me/fng/?limit=1');
+    if (!response.ok) {
+      throw new Error('Failed to fetch Fear & Greed Index');
+    }
+
+    const data = await response.json();
+    const fngData = data.data?.[0];
+
+    if (!fngData) {
+      throw new Error('Invalid Fear & Greed data');
+    }
+
+    const result = {
+      value: parseInt(fngData.value),
+      classification: fngData.value_classification,
+      timestamp: fngData.timestamp,
+      lastUpdate: new Date().toISOString()
+    };
+
+    // Cache result
+    fearGreedCache = { data: result, timestamp: Date.now() };
+
+    res.json(result);
+  } catch (error) {
+    console.error('[Fear&Greed] Error:', error.message);
+    // Return cached data if available, even if stale
+    if (fearGreedCache.data) {
+      return res.json(fearGreedCache.data);
+    }
+    res.status(500).json({ error: 'Failed to fetch Fear & Greed Index' });
+  }
+});
+
 // Get market state (current bull/neutral/bear status)
 app.get('/api/market-state', (req, res) => {
   const btc = getBTCData();

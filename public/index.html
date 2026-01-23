@@ -119,6 +119,15 @@
           <p class="page-subtitle" id="pageSubtitle">20 sectors • Real-time data from CoinGecko</p>
         </div>
         <div class="header-right">
+          <div class="fear-greed-indicator" id="fearGreedIndicator" title="Fear & Greed Index">
+            <div class="fng-gauge">
+              <div class="fng-needle" id="fngNeedle"></div>
+            </div>
+            <div class="fng-info">
+              <span class="fng-value" id="fngValue">--</span>
+              <span class="fng-label" id="fngLabel">Loading...</span>
+            </div>
+          </div>
           <div class="market-state-indicator" id="marketStateIndicator">
             <span class="market-state-icon">➡️</span>
             <span class="market-state-label">NEUTRAL</span>
@@ -330,6 +339,38 @@
             </div>
             <div class="bull-phases-list" id="bullPhasesList">
               <!-- Dynamic content -->
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="momentum-card faq-card">
+          <div class="card-header faq-header">
+            <div class="faq-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                <line x1="12" y1="17" x2="12.01" y2="17"/>
+              </svg>
+            </div>
+            <h2 class="card-title" data-i18n="faqTitle">FAQ</h2>
+          </div>
+          <div class="faq-content" id="faqContent">
+            <div class="faq-item">
+              <div class="faq-question" data-i18n="faqQ1">What is Momentum Score?</div>
+              <div class="faq-answer" data-i18n="faqA1">Momentum Score (0-100) shows how well a token historically performed during bull phases.</div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question" data-i18n="faqQ2">How is a bull phase defined?</div>
+              <div class="faq-answer" data-i18n="faqA2">A bull phase starts when BTC shows >5% growth in 24h, continues while growth is >2%, and ends when growth drops below 2%.</div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question" data-i18n="faqQ3">What is Beta?</div>
+              <div class="faq-answer" data-i18n="faqA3">Beta shows how much a token grows relative to BTC on average.</div>
+            </div>
+            <div class="faq-item">
+              <div class="faq-question" data-i18n="faqQ4">What is Consistency?</div>
+              <div class="faq-answer" data-i18n="faqA4">Consistency shows in what percentage of bull phases the token was in the top 20% performers.</div>
             </div>
           </div>
         </div>

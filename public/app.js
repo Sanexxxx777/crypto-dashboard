@@ -50,7 +50,7 @@ const TRANSLATIONS = {
     low24h: '24ч Мин',
     athChange: 'От ATH',
     // Momentum
-    momentum: 'Momentum',
+    momentum: 'Сила роста',
     momentumTitle: 'Momentum Рейтинг',
     momentumSubtitle: 'Анализ исторической динамики во время ралли',
     marketState: 'Состояние рынка',
@@ -75,7 +75,25 @@ const TRANSLATIONS = {
     marketBear: 'МЕДВЕЖИЙ',
     btcShowsStrength: 'BTC показывает сильный рост',
     btcNoMovement: 'BTC не показывает сильного движения',
-    btcShowsWeakness: 'BTC показывает слабость'
+    btcShowsWeakness: 'BTC показывает слабость',
+    // Fear & Greed
+    fearGreed: 'Индекс страха и жадности',
+    extremeFear: 'Крайний страх',
+    fear: 'Страх',
+    neutral: 'Нейтрально',
+    greed: 'Жадность',
+    extremeGreed: 'Крайняя жадность',
+    // FAQ
+    faq: 'FAQ',
+    faqTitle: 'Часто задаваемые вопросы',
+    faqQ1: 'Что такое Momentum Score?',
+    faqA1: 'Momentum Score (0-100) показывает насколько хорошо токен исторически рос во время бычьих фаз рынка. Высокий скор означает, что токен обычно растёт сильнее BTC когда рынок на подъёме.',
+    faqQ2: 'Как определяется бычья фаза?',
+    faqA2: 'Бычья фаза начинается когда BTC показывает рост >5% за 24 часа, продолжается пока рост >2%, и заканчивается когда рост падает ниже 2%.',
+    faqQ3: 'Что такое Beta?',
+    faqA3: 'Beta показывает во сколько раз токен в среднем растёт относительно BTC. Beta 2.5x означает, что если BTC вырос на 10%, токен в среднем вырастет на 25%.',
+    faqQ4: 'Что такое Consistency?',
+    faqA4: 'Consistency показывает в каком проценте бычьих фаз токен входил в топ-20% лучших по росту. Высокая консистентность означает стабильную силу во время ралли.'
   },
   en: {
     language: 'Language',
@@ -147,7 +165,25 @@ const TRANSLATIONS = {
     marketBear: 'BEAR',
     btcShowsStrength: 'BTC shows strong growth',
     btcNoMovement: 'BTC shows no strong movement',
-    btcShowsWeakness: 'BTC shows weakness'
+    btcShowsWeakness: 'BTC shows weakness',
+    // Fear & Greed
+    fearGreed: 'Fear & Greed Index',
+    extremeFear: 'Extreme Fear',
+    fear: 'Fear',
+    neutral: 'Neutral',
+    greed: 'Greed',
+    extremeGreed: 'Extreme Greed',
+    // FAQ
+    faq: 'FAQ',
+    faqTitle: 'Frequently Asked Questions',
+    faqQ1: 'What is Momentum Score?',
+    faqA1: 'Momentum Score (0-100) shows how well a token historically performed during bull phases. A high score means the token usually outperforms BTC when the market is rising.',
+    faqQ2: 'How is a bull phase defined?',
+    faqA2: 'A bull phase starts when BTC shows >5% growth in 24h, continues while growth is >2%, and ends when growth drops below 2%.',
+    faqQ3: 'What is Beta?',
+    faqA3: 'Beta shows how much a token grows relative to BTC on average. Beta 2.5x means if BTC grows 10%, the token grows 25% on average.',
+    faqQ4: 'What is Consistency?',
+    faqA4: 'Consistency shows in what percentage of bull phases the token was in the top 20% performers. High consistency means stable strength during rallies.'
   }
 };
 
@@ -168,6 +204,7 @@ class CryptoDashboard {
     this.momentumData = null;
     this.marketState = null;
     this.bullPhases = null;
+    this.fearGreedData = null;
 
     this.init();
   }
@@ -1002,8 +1039,29 @@ class CryptoDashboard {
     }
 
     // Card title
-    const cardTitle = document.querySelector('.card-title');
+    const cardTitle = document.querySelector('.sectors-overview-card .card-title');
     if (cardTitle) cardTitle.textContent = this.t('sectorsPerformance');
+
+    // FAQ section
+    const faqItems = document.querySelectorAll('.faq-item');
+    if (faqItems.length >= 4) {
+      faqItems[0].querySelector('.faq-question').textContent = this.t('faqQ1');
+      faqItems[0].querySelector('.faq-answer').textContent = this.t('faqA1');
+      faqItems[1].querySelector('.faq-question').textContent = this.t('faqQ2');
+      faqItems[1].querySelector('.faq-answer').textContent = this.t('faqA2');
+      faqItems[2].querySelector('.faq-question').textContent = this.t('faqQ3');
+      faqItems[2].querySelector('.faq-answer').textContent = this.t('faqA3');
+      faqItems[3].querySelector('.faq-question').textContent = this.t('faqQ4');
+      faqItems[3].querySelector('.faq-answer').textContent = this.t('faqA4');
+    }
+
+    const faqTitle = document.querySelector('.faq-card .card-title');
+    if (faqTitle) faqTitle.textContent = this.t('faqTitle');
+
+    // Re-render Fear & Greed label
+    if (this.fearGreedData) {
+      this.renderFearGreedIndicator();
+    }
 
     // Update page title based on view
     this.updatePageTitle();
@@ -1160,10 +1218,11 @@ class CryptoDashboard {
   async loadMomentumData() {
     try {
       // Load all momentum data in parallel
-      const [momentumRes, marketStateRes, phasesRes] = await Promise.all([
+      const [momentumRes, marketStateRes, phasesRes, fearGreedRes] = await Promise.all([
         fetch('/api/momentum'),
         fetch('/api/market-state'),
-        fetch('/api/bull-phases?limit=10')
+        fetch('/api/bull-phases?limit=10'),
+        fetch('/api/fear-greed')
       ]);
 
       if (momentumRes.ok) {
@@ -1177,6 +1236,11 @@ class CryptoDashboard {
 
       if (phasesRes.ok) {
         this.bullPhases = await phasesRes.json();
+      }
+
+      if (fearGreedRes.ok) {
+        this.fearGreedData = await fearGreedRes.json();
+        this.renderFearGreedIndicator();
       }
 
       // Re-render momentum view if active
@@ -1204,12 +1268,53 @@ class CryptoDashboard {
     };
 
     indicator.innerHTML = `
-      <span class="market-state-icon">${config.icon}</span>
+      <span class="market-state-icon" style="color: ${config.color}">${config.icon}</span>
       <span class="market-state-label" style="color: ${config.color}">${stateLabels[state]}</span>
       <span class="market-state-btc ${btc24h >= 0 ? 'positive' : 'negative'}">BTC: ${this.formatPercent(btc24h)}</span>
     `;
     indicator.style.background = config.bgColor;
     indicator.style.borderColor = config.color;
+  }
+
+  renderFearGreedIndicator() {
+    const indicator = document.getElementById('fearGreedIndicator');
+    if (!indicator || !this.fearGreedData) return;
+
+    const value = this.fearGreedData.value;
+    const needle = document.getElementById('fngNeedle');
+    const valueEl = document.getElementById('fngValue');
+    const labelEl = document.getElementById('fngLabel');
+
+    // Set value
+    valueEl.textContent = value;
+
+    // Get classification and color
+    let label, color;
+    if (value <= 25) {
+      label = this.t('extremeFear');
+      color = '#EF4444';
+    } else if (value <= 45) {
+      label = this.t('fear');
+      color = '#F97316';
+    } else if (value <= 55) {
+      label = this.t('neutral');
+      color = '#A855F7';
+    } else if (value <= 75) {
+      label = this.t('greed');
+      color = '#84CC16';
+    } else {
+      label = this.t('extremeGreed');
+      color = '#22C55E';
+    }
+
+    labelEl.textContent = label;
+    labelEl.style.color = color;
+    valueEl.style.color = color;
+
+    // Rotate needle (0 = -90deg, 100 = 90deg)
+    const rotation = (value / 100) * 180 - 90;
+    needle.style.transform = `rotate(${rotation}deg)`;
+    needle.style.background = color;
   }
 
   renderMomentum() {
@@ -1248,7 +1353,7 @@ class CryptoDashboard {
     const bannerLeft = banner.querySelector('.momentum-banner-left');
     if (bannerLeft) {
       bannerLeft.innerHTML = `
-        <span class="banner-state-icon">${config.icon}</span>
+        <span class="banner-state-icon" style="color: ${config.color}">${config.icon}</span>
         <div class="banner-state-info">
           <span class="banner-state-label" style="color: ${config.color}">${this.t('marketState')}: ${stateLabels[state]}</span>
           <span class="banner-state-desc">${stateDescs[state]}</span>

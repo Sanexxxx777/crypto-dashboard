@@ -23,11 +23,26 @@ const MOMENTUM_CONFIG = {
     F: { min: 0, color: '#EF4444', label: 'F', description: 'Минимальная корреляция с ралли' }
   },
 
-  // Market state colors
+  // Market state colors and SVG icons
   MARKET_STATE: {
-    bull: { color: '#22C55E', bgColor: 'rgba(34, 197, 94, 0.15)', icon: '🚀' },
-    neutral: { color: '#A855F7', bgColor: 'rgba(168, 85, 247, 0.15)', icon: '➡️' },
-    bear: { color: '#EF4444', bgColor: 'rgba(239, 68, 68, 0.15)', icon: '🐻' }
+    bull: {
+      color: '#22C55E',
+      bgColor: 'rgba(34, 197, 94, 0.15)',
+      // Rocket icon - upward momentum
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>`
+    },
+    neutral: {
+      color: '#A855F7',
+      bgColor: 'rgba(168, 85, 247, 0.15)',
+      // Balance/scale icon - equilibrium
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8l7-5 7 5"/><path d="M3 13l5-5v7a3 3 0 0 0 3 3h2a3 3 0 0 0 3-3V8l5 5"/><circle cx="5" cy="17" r="2"/><circle cx="19" cy="17" r="2"/></svg>`
+    },
+    bear: {
+      color: '#EF4444',
+      bgColor: 'rgba(239, 68, 68, 0.15)',
+      // Trending down icon - downward momentum
+      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/><polyline points="16 17 22 17 22 11"/></svg>`
+    }
   },
 
   // Beta interpretation
