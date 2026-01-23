@@ -1388,14 +1388,24 @@ h1, h2, h3, .page-title, .card-title, .summary-value, .sector-name {
   font-size: 13px;
   font-weight: 700;
   color: white;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.7),
+    1px -1px 0 rgba(0,0,0,0.7),
+    -1px 1px 0 rgba(0,0,0,0.7),
+    1px 1px 0 rgba(0,0,0,0.7),
+    0 2px 4px rgba(0,0,0,0.5);
 }
 
 .heatmap-token-large .token-change {
   font-size: 11px;
-  font-weight: 600;
-  color: rgba(255,255,255,0.9);
-  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+  font-weight: 700;
+  color: white;
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.7),
+    1px -1px 0 rgba(0,0,0,0.7),
+    -1px 1px 0 rgba(0,0,0,0.7),
+    1px 1px 0 rgba(0,0,0,0.7),
+    0 2px 4px rgba(0,0,0,0.5);
 }
 
 /* Legacy small tokens (keep for compatibility) */
@@ -1412,9 +1422,14 @@ h1, h2, h3, .page-title, .card-title, .summary-value, .sector-name {
   align-items: center;
   justify-content: center;
   font-size: 10px;
-  font-weight: 600;
+  font-weight: 700;
   color: white;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  text-shadow:
+    -1px -1px 0 rgba(0,0,0,0.7),
+    1px -1px 0 rgba(0,0,0,0.7),
+    -1px 1px 0 rgba(0,0,0,0.7),
+    1px 1px 0 rgba(0,0,0,0.7),
+    0 2px 4px rgba(0,0,0,0.5);
   cursor: pointer;
   transition: transform 0.2s ease;
 }
