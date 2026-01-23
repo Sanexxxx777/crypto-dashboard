@@ -2721,6 +2721,21 @@ h1, h2, h3, .page-title, .card-title, .summary-value, .sector-name {
   height: 100%;
 }
 
+/* Card Title Icons */
+.card-title-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 10px;
+  vertical-align: middle;
+  color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+}
+
 .faq-content {
   padding: 16px 24px 24px;
   display: flex;

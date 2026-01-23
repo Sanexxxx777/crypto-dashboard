@@ -1058,6 +1058,14 @@ class CryptoDashboard {
     const faqTitle = document.querySelector('.faq-card .card-title');
     if (faqTitle) faqTitle.textContent = this.t('faqTitle');
 
+    // Update all data-i18n elements
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (key && this.t(key)) {
+        el.textContent = this.t(key);
+      }
+    });
+
     // Re-render Fear & Greed label
     if (this.fearGreedData) {
       this.renderFearGreedIndicator();
