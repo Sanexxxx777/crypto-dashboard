@@ -9,6 +9,7 @@ Real-time crypto market visualization by sector (20 sectors, ~170 tokens).
 - Express.js server with API proxy + caching
 - Vanilla JS (class-based frontend)
 - CoinGecko API (server-side, demo key)
+- Alternative.me API (Fear & Greed Index)
 
 ## Structure
 ```
@@ -37,7 +38,7 @@ COINGECKO_API_KEY=your-key npm start
 
 ## Deploy to Server
 ```bash
-# Copy files
+# Copy all files
 scp -r public server.js package.json poly:/root/crypto-dashboard/
 
 # Or single file update
@@ -51,15 +52,19 @@ ssh poly "pm2 logs crypto-dashboard --lines 20 --nostream"
 ```
 
 ## Features
-- 4 views: Overview, Heatmap, All Sectors, **Momentum**
+- 4 views: Overview, Heatmap, All Sectors, **Momentum** (Сила роста)
 - 24h/7d/30d period switching
 - Search with token preview dropdown
 - Quick sectors bar (compact horizontal dashboard)
 - Heatmap sorting (market cap, 24h/7d/30d change, name)
+- Heatmap text with black outline for visibility
 - Collapsible sidebar (icons-only mode)
 - Dark/light theme toggle
 - Language switcher (RU/EN)
 - Token detail modal with CoinGecko links + momentum data
+- Fear & Greed Index indicator in header
+- Market state indicator (bull/neutral/bear) with SVG icons
+- FAQ section in Momentum view
 
 ## Momentum Rating System
 Historical "rally strength" rating for tokens during bull phases.
@@ -80,18 +85,15 @@ Score = Beta×0.35 + Consistency×0.25 + Recency×0.20 + AvgGain×0.20
 
 **Tiers:** S (90+), A (75+), B (60+), C (45+), D (30+), F (<30)
 
-**API Endpoints:**
-- `/api/market-state` - current bull/neutral/bear state
-- `/api/momentum` - token/sector scores
-- `/api/bull-phases` - historical phase data
-
-## API & Caching
-- Server-side cache (5 min TTL)
-- Pre-fetches all 170 tokens on startup
-- Background refresh via setInterval
-- `/api/markets` - cached token data (single request for all)
-- `/api/cache-status` - cache monitoring
-- Handles unlimited concurrent users (API called only once per 5 min)
+## API Endpoints
+| Endpoint | Description |
+|----------|-------------|
+| `/api/markets` | Cached token data (all 170 tokens) |
+| `/api/cache-status` | Cache monitoring |
+| `/api/market-state` | Current bull/neutral/bear state |
+| `/api/momentum` | Token/sector momentum scores |
+| `/api/bull-phases` | Historical bull phase data |
+| `/api/fear-greed` | Fear & Greed Index (30min cache) |
 
 ## Server Info
 - Host: `poly` (185.147.127.126)
@@ -102,14 +104,25 @@ Score = Beta×0.35 + Consistency×0.25 + Recency×0.20 + AvgGain×0.20
 
 ## Important Notes
 - CoinGecko demo API key is in server.js (rate limited)
-- Refresh button was removed to prevent API overuse
+- Fear & Greed from Alternative.me (free, no API key needed)
 - All user preferences saved to localStorage (theme, language, sidebar state)
 - SECTORS config in config.js defines token groupings
+- SVG icons used throughout (no emojis)
 
 ## Version
-v2.1.0 (2026-01-23)
+v2.2.0 (2026-01-23)
 
-### Changelog v2.1.0
+### Changelog v2.2.0
+- Fear & Greed Index indicator with animated gauge
+- Custom SVG icons for market states (rocket/balance/trending-down)
+- SVG icons for card titles (trophy, bar-chart, trend-up, question)
+- Heatmap text with black outline for better visibility
+- FAQ section in Momentum view (4 Q&A items)
+- Russian translation for Momentum nav ("Сила роста")
+- Fixed card hover animation edge cutoff
+- data-i18n attribute support for automatic translations
+
+### v2.1.0 (2026-01-23)
 - **Momentum Rating System** - Historical rally performance analysis
 - Bull phase detection (BTC 24h based triggers)
 - Momentum scores with S/A/B/C/D/F tiers
