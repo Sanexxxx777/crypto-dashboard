@@ -5,7 +5,7 @@
 
 const CONFIG = {
   API_ENDPOINT: '/api/markets', // Server-side proxy (API key hidden)
-  REFRESH_INTERVAL: 5 * 60 * 1000, // 5 minutes
+  REFRESH_INTERVAL: 30 * 1000, // 30 seconds (matches server cache TTL)
   BATCH_SIZE: 50,
   BATCH_DELAY: 1500, // 1.5 seconds between batches
   MAX_RETRIES: 3, // Max retry attempts for rate limiting

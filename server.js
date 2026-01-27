@@ -21,16 +21,52 @@ const MOMENTUM_FILE = path.join(DATA_DIR, 'momentum.json');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(SNAPSHOTS_DIR)) fs.mkdirSync(SNAPSHOTS_DIR, { recursive: true });
 
-// CoinGecko API configuration (server-side only)
-const COINGECKO_API_KEY = process.env.COINGECKO_API_KEY || 'CG-adnEn1bsVtmWiRj2E9eQ4KmB';
-const COINGECKO_BASE_URL = 'https://api.coingecko.com/api/v3';
+// CoinGecko API configuration - Basic plan ($29/mo)
+// 100k calls/month, 250/min rate limit
+const COINGECKO_API_KEY = 'CG-XYGuN7yVwECrpsrLw65M14mr';
+const COINGECKO_BASE_URL = 'https://pro-api.coingecko.com/api/v3';
 
-// Cache configuration
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+// Cache configuration - 30 seconds with batch 200 (~86k calls/month)
+const CACHE_TTL = 30 * 1000; // 30 seconds
 const cache = {
   data: null,
   timestamp: 0,
   isRefreshing: false
+};
+
+// Google Sheets API key (for external access)
+const SHEETS_API_KEY = process.env.SHEETS_API_KEY || 'crypto-dashboard-2024';
+
+// Statistics for monitoring
+const stats = {
+  websiteRequests: 0,
+  sheetsRequests: 0,
+  cacheHits: 0,
+  startTime: Date.now()
+};
+
+// Sectors configuration for /api/sheets
+const SECTORS = {
+  'Layer 1': ['ethereum', 'solana', 'binancecoin', 'cardano', 'tron', 'avalanche-2', 'toncoin', 'polkadot', 'cosmos', 'sui'],
+  'Layer 2': ['arbitrum', 'optimism', 'matic-network', 'mantle', 'immutable-x', 'starknet', 'zksync', 'manta-network', 'metis-token', 'loopring'],
+  'DEX': ['uniswap', 'raydium', 'jupiter-exchange-solana', 'pancakeswap-token', 'curve-dao-token', 'aerodrome-finance', 'velodrome-finance', 'orca', 'camelot-token', 'sushiswap'],
+  'DEX Aggregators': ['1inch', 'jupiter-exchange-solana', 'paraswap', 'cowswap', 'openocean-finance', 'dodo', 'kyber-network-crystal', 'hashflow', 'unizen', 'rango'],
+  'Derivatives': ['hyperliquid', 'gmx', 'dydx-chain', 'gains-network', 'synthetix-network-token', 'drift-protocol', 'vertex-protocol', 'aevo-exchange', 'ribbon-finance', 'lyra-finance'],
+  'Lending': ['aave', 'compound-governance-token', 'venus', 'radiant-capital', 'morpho', 'euler', 'benqi', 'kamino', 'silo-finance', 'spark'],
+  'Liquid Staking': ['lido-dao', 'rocket-pool', 'jito-governance-token', 'frax-share', 'ether-fi', 'ankr', 'stader', 'marinade', 'stride', 'stakewise'],
+  'Stablecoins': ['maker', 'ethena', 'frax-share', 'liquity', 'rai', 'alchemix', 'angle-protocol', 'reserve-rights-token', 'spell-token', 'frax'],
+  'Asset Management': ['yearn-finance', 'convex-finance', 'instadapp', 'sommelier', 'enzyme-finance', 'rari-governance-token', 'badger-dao', 'harvest-finance', 'idle-finance', 'vesper-finance'],
+  'Infrastructure': ['bittensor', 'render-token', 'internet-computer', 'the-graph', 'filecoin', 'arweave', 'akash-network', 'theta-token', 'livepeer', 'pocket-network'],
+  'Oracles': ['chainlink', 'band-protocol', 'api3', 'dia-data', 'uma', 'tellor', 'nest-protocol', 'dos-network', 'razor-network', 'witnet'],
+  'Bridges': ['wormhole', 'stargate-finance', 'layerzero', 'across-protocol', 'synapse-2', 'celer-network', 'hop-protocol', 'multichain', 'connext', 'router-protocol'],
+  'DePIN': ['helium', 'iotex', 'hivemapper', 'grass', 'dimo', 'render-token', 'filecoin', 'theta-token', 'akash-network', 'nosana'],
+  'NFT Marketplaces': ['blur', 'looks-rare', 'x2y2', 'rarible', 'superrare', 'magic-eden', 'tensor', 'zora', 'foundation', 'manifold-finance'],
+  'Gaming': ['immutable-x', 'gala', 'the-sandbox', 'axie-infinity', 'ronin', 'beam-2', 'illuvium', 'enjincoin', 'ultra', 'echelon-prime'],
+  'Social': ['friend-tech', 'lens-protocol', 'cyberconnect', 'hooked-protocol', 'galxe', 'mask-network', 'status', 'rally-2', 'whale', 'chiliz'],
+  'Prediction Markets': ['polymarket', 'gnosis', 'augur', 'azuro', 'thales', 'hedgehog-markets', 'zeitgeist', 'polkamarkets', 'omen', 'sx-network'],
+  'RWA': ['ondo-finance', 'mantra-dao', 'centrifuge', 'goldfinch', 'maple', 'clearpool', 'pendle', 'polymesh', 'truefi', 'realio-network'],
+  'Memes': ['dogecoin', 'shiba-inu', 'pepe', 'dogwifcoin', 'bonk', 'floki', 'brett-based', 'mog-coin', 'popcat', 'book-of-meme'],
+  'AI Agents': ['artificial-superintelligence-alliance', 'virtuals-protocol', 'ai16z', 'goatseus-maximus', 'fartcoin', 'griffain', 'zerebro', 'ai-rig-complex', 'cookie', 'aixbt']
 };
 
 // All token IDs from config (will be populated on first request)
@@ -459,6 +495,13 @@ function initializeMockData() {
 app.use(compression());
 app.use(express.json());
 
+// CORS for Google Sheets
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, X-API-Key');
+  next();
+});
+
 // Fetch all market data and cache it
 async function fetchAndCacheAllData() {
   if (cache.isRefreshing) return cache.data;
@@ -531,18 +574,18 @@ async function fetchAndCacheAllData() {
       ];
     }
 
-    // Fetch in batches of 50
-    const batchSize = 50;
+    // Fetch in batches of 200 (CoinGecko allows up to 250)
+    const batchSize = 200;
     const allData = [];
 
     for (let i = 0; i < allTokenIds.length; i += batchSize) {
       const batch = allTokenIds.slice(i, i + batchSize);
-      const url = `${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&ids=${batch.join(',')}&order=market_cap_desc&per_page=100&page=1&sparkline=false&price_change_percentage=24h,7d,30d`;
+      const url = `${COINGECKO_BASE_URL}/coins/markets?vs_currency=usd&ids=${batch.join(',')}&order=market_cap_desc&per_page=250&page=1&sparkline=false&price_change_percentage=24h,7d,30d`;
 
       const response = await fetch(url, {
         headers: {
           'Accept': 'application/json',
-          'x-cg-demo-api-key': COINGECKO_API_KEY
+          'x-cg-pro-api-key': COINGECKO_API_KEY
         }
       });
 
@@ -581,9 +624,12 @@ function isCacheValid() {
 
 // API Proxy endpoint - serves cached data
 app.get('/api/markets', async (req, res) => {
+  stats.websiteRequests++;
+
   try {
     // Return cached data if valid
     if (isCacheValid()) {
+      stats.cacheHits++;
       const { ids } = req.query;
 
       // If specific IDs requested, filter cached data
@@ -624,8 +670,119 @@ app.get('/api/cache-status', (req, res) => {
     tokenCount: cache.data?.length || 0,
     lastUpdate: cache.timestamp ? new Date(cache.timestamp).toISOString() : null,
     ageSeconds: cache.timestamp ? Math.floor((Date.now() - cache.timestamp) / 1000) : null,
-    isRefreshing: cache.isRefreshing
+    isRefreshing: cache.isRefreshing,
+    stats: {
+      uptime: Math.round((Date.now() - stats.startTime) / 1000 / 60) + ' min',
+      websiteRequests: stats.websiteRequests,
+      sheetsRequests: stats.sheetsRequests,
+      cacheHits: stats.cacheHits,
+      hitRate: stats.cacheHits > 0 ?
+        Math.round(stats.cacheHits / (stats.websiteRequests + stats.sheetsRequests) * 100) + '%' : '0%'
+    }
   });
+});
+
+/**
+ * GOOGLE SHEETS ENDPOINT
+ *
+ * Returns data in format optimized for Google Apps Script.
+ * Use in Apps Script:
+ *
+ * function loadData() {
+ *   const url = 'https://sectormap.dpdns.org/api/sheets?key=crypto-dashboard-2024';
+ *   const response = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+ *   return JSON.parse(response.getContentText());
+ * }
+ */
+app.get('/api/sheets', async (req, res) => {
+  stats.sheetsRequests++;
+
+  // API key validation
+  const apiKey = req.query.key || req.headers['x-api-key'];
+  if (SHEETS_API_KEY && apiKey !== SHEETS_API_KEY) {
+    return res.status(401).json({ error: 'Invalid API key' });
+  }
+
+  try {
+    // Return cached data if valid, otherwise fetch
+    let data = cache.data;
+    if (!isCacheValid()) {
+      data = await fetchAndCacheAllData();
+    } else {
+      stats.cacheHits++;
+    }
+
+    if (!data || data.length === 0) {
+      return res.status(503).json({ error: 'Data temporarily unavailable' });
+    }
+
+    // Build response optimized for Google Sheets
+    const dataMap = {};
+    data.forEach(coin => {
+      dataMap[coin.id] = {
+        id: coin.id,
+        symbol: (coin.symbol || '').toUpperCase(),
+        name: coin.name,
+        price: coin.current_price,
+        market_cap: coin.market_cap,
+        volume_24h: coin.total_volume,
+        change_24h: coin.price_change_percentage_24h_in_currency,
+        change_7d: coin.price_change_percentage_7d_in_currency,
+        change_30d: coin.price_change_percentage_30d_in_currency,
+        high_24h: coin.high_24h,
+        low_24h: coin.low_24h,
+        ath: coin.ath,
+        ath_change_percentage: coin.ath_change_percentage,
+        image: coin.image
+      };
+    });
+
+    // Include sector stats
+    const sectorStats = {};
+    Object.entries(SECTORS).forEach(([sectorName, tokens]) => {
+      let totalMcap = 0, sum24 = 0, sum7d = 0, sum30d = 0, count = 0;
+      let best24h = { symbol: '-', value: -Infinity };
+
+      tokens.forEach(id => {
+        const coin = dataMap[id];
+        if (coin) {
+          totalMcap += coin.market_cap || 0;
+          if (coin.change_24h != null) {
+            sum24 += coin.change_24h;
+            count++;
+            if (coin.change_24h > best24h.value) {
+              best24h = { symbol: coin.symbol, value: coin.change_24h };
+            }
+          }
+          if (coin.change_7d != null) sum7d += coin.change_7d;
+          if (coin.change_30d != null) sum30d += coin.change_30d;
+        }
+      });
+
+      sectorStats[sectorName] = {
+        mcap: totalMcap,
+        avg24h: count > 0 ? sum24 / count : 0,
+        avg7d: count > 0 ? sum7d / count : 0,
+        avg30d: count > 0 ? sum30d / count : 0,
+        tokenCount: count,
+        best: best24h.value > -Infinity ? best24h : null
+      };
+    });
+
+    res.json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      cacheAge: Math.round((Date.now() - cache.timestamp) / 1000),
+      tokenCount: data.length,
+      data: dataMap,
+      sectors: sectorStats,
+      sectorTokens: SECTORS
+    });
+
+  } catch (error) {
+    console.error('[API/sheets] Error:', error.message);
+    res.status(500).json({ error: 'Failed to fetch data', message: error.message });
+  }
 });
 
 // ==================== MOMENTUM API ENDPOINTS ====================
@@ -783,21 +940,23 @@ app.get('*', (req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`
-╔══════════════════════════════════════════════════╗
-║                                                  ║
-║   Crypto Sectors Dashboard                       ║
-║                                                  ║
-║   Server running at:                             ║
-║   → http://localhost:${PORT}                       ║
-║                                                  ║
-║   Features:                                      ║
-║   • 20 crypto sectors (~150 tokens)              ║
-║   • Server-side caching (5 min TTL)              ║
-║   • Momentum Rating System                       ║
-║   • Bull Phase Detection                         ║
-║   • Dark/Light themes + RU/EN                    ║
-║                                                  ║
-╚══════════════════════════════════════════════════╝
+╔═══════════════════════════════════════════════════════════╗
+║                                                           ║
+║   Crypto Sectors Dashboard v3.1 - UNIFIED API             ║
+║                                                           ║
+║   Server: http://localhost:${PORT}                          ║
+║                                                           ║
+║   Endpoints:                                              ║
+║   • /api/markets      - Website data                      ║
+║   • /api/sheets       - Google Sheets data                ║
+║   • /api/cache-status - Cache monitoring + stats          ║
+║   • /api/fear-greed   - Fear & Greed Index                ║
+║   • /api/momentum     - Momentum ratings                  ║
+║                                                           ║
+║   Cache TTL: 30 seconds (shared by website + sheets)      ║
+║   Sheets API Key: ${SHEETS_API_KEY}                  ║
+║                                                           ║
+╚═══════════════════════════════════════════════════════════╝
   `);
 
   // Initialize momentum data (load or generate mock)
@@ -806,7 +965,7 @@ app.listen(PORT, () => {
   // Pre-fetch data on startup
   fetchAndCacheAllData();
 
-  // Background refresh every 5 minutes
+  // Background refresh every 30 seconds
   setInterval(fetchAndCacheAllData, CACHE_TTL);
 });
 

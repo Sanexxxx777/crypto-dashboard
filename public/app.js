@@ -38,8 +38,8 @@ const TRANSLATIONS = {
     fetchingSectors: 'Получение секторов',
     noTokensFound: 'Токены не найдены',
     updated: 'Обновлено',
-    updateInfo: 'Обновление: каждые 5 мин',
-    donateHint: '30 сек при донате от $35',
+    updateInfo: 'Обновление: каждые 30 сек',
+    donateHint: 'Автор всегда открыт к поддержке',
     sector: 'Сектор',
     topGainerCol: 'Лидер роста',
     token: 'Токен',
@@ -128,8 +128,8 @@ const TRANSLATIONS = {
     fetchingSectors: 'Fetching sectors',
     noTokensFound: 'No tokens found',
     updated: 'Updated',
-    updateInfo: 'Updates: every 5 min',
-    donateHint: '30 sec with $35+ donation',
+    updateInfo: 'Updates: every 30 sec',
+    donateHint: 'Author is open for support',
     sector: 'Sector',
     topGainerCol: 'Top Gainer',
     token: 'Token',
@@ -195,7 +195,7 @@ class CryptoDashboard {
     this.currentView = 'heatmap'; // Default to heatmap
     this.currentSort = '24h';
     this.currentPeriod = '24h';
-    this.heatmapSort = 'mcap'; // Default sort by market cap
+    this.heatmapSort = '24h'; // Default sort by 24h profitability
     this.currentLang = 'ru'; // Default language
     this.refreshInterval = null;
     this.isLoading = false;
@@ -418,7 +418,10 @@ class CryptoDashboard {
     const tbody = document.getElementById('sectorsTableBody');
     tbody.innerHTML = '';
 
-    this.getSectorsForRender().forEach((sector, index) => {
+    // Sort sectors by 24h performance (most profitable first)
+    const sortedSectors = [...this.getSectorsForRender()].sort((a, b) => b.avg24h - a.avg24h);
+
+    sortedSectors.forEach((sector, index) => {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td style="text-align: center; color: var(--text-muted);">${index + 1}</td>
@@ -515,7 +518,7 @@ class CryptoDashboard {
           </div>
         </div>
         <div class="heatmap-tokens-grid">
-          ${sector.tokens.slice(0, 10).map(token => {
+          ${[...sector.tokens].sort((a, b) => (b[periodKey] || 0) - (a[periodKey] || 0)).slice(0, 10).map(token => {
             const change = token[periodKey] || 0;
             const bgColor = this.getHeatmapColor(change);
             // Scale token size by market cap (min 1, max 3 units)
@@ -550,7 +553,10 @@ class CryptoDashboard {
     const grid = document.getElementById('sectorsGrid');
     grid.innerHTML = '';
 
-    this.getSectorsForRender().forEach(sector => {
+    // Sort sectors by 24h performance (most profitable first)
+    const sortedSectors = [...this.getSectorsForRender()].sort((a, b) => b.avg24h - a.avg24h);
+
+    sortedSectors.forEach(sector => {
       const card = document.createElement('div');
       card.className = 'sector-card';
 
@@ -584,7 +590,7 @@ class CryptoDashboard {
             </tr>
           </thead>
           <tbody>
-            ${sector.tokens.slice(0, 10).map((token, i) => `
+            ${[...sector.tokens].sort((a, b) => (b.price_change_percentage_24h_in_currency || 0) - (a.price_change_percentage_24h_in_currency || 0)).slice(0, 10).map((token, i) => `
               <tr data-token-id="${token.id}">
                 <td style="color: var(--text-muted)">${i + 1}</td>
                 <td>

@@ -103,16 +103,23 @@ Score = Beta×0.35 + Consistency×0.25 + Recency×0.20 + AvgGain×0.20
 - Port: 3001 (internal)
 
 ## Important Notes
-- CoinGecko demo API key is in server.js (rate limited)
-- Fear & Greed from Alternative.me (free, no API key needed)
-- All user preferences saved to localStorage (theme, language, sidebar state)
-- SECTORS config in config.js defines token groupings
-- SVG icons used throughout (no emojis)
+- Cache TTL: 30 seconds (server + frontend sync)
+- CoinGecko demo API key in server.js (rate limited)
+- Fear & Greed from Alternative.me (free, no key)
+- User preferences in localStorage (theme, lang, sidebar)
+- Sorting: sectors and tokens by 24h profitability (descending)
+- SVG icons throughout (no emojis)
 
 ## Version
-v2.2.0 (2026-01-23)
+v2.2.1 (2026-01-27)
 
-### Changelog v2.2.0
+### Changelog v2.2.1
+- Sorting by profitability: sectors and tokens sorted by 24h change (most profitable first)
+- Heatmap default sort: 24h (was mcap)
+- Cache/refresh interval: 30 sec (fixed incorrect "5 min" display)
+- Donate hint: "Автор всегда открыт к поддержке"
+
+### v2.2.0 (2026-01-23)
 - Fear & Greed Index indicator with animated gauge
 - Custom SVG icons for market states (rocket/balance/trending-down)
 - SVG icons for card titles (trophy, bar-chart, trend-up, question)
@@ -129,14 +136,14 @@ v2.2.0 (2026-01-23)
 - New "Momentum" view with top performers, sector rankings, phase history
 - Market state indicator in header (bull/neutral/bear)
 - Momentum data in token modal
-- Price snapshots saved every 5 min
+- Price snapshots saved every 30 sec
 - Mock data generator for development (12 bull phases)
 
 ### v2.0.1 (2026-01-22)
 - Fixed JS error: removed references to deleted refreshBtn element
 
 ### v2.0.0 (2026-01-21)
-- Server-side caching (5 min TTL, handles 100+ users)
+- Server-side caching (30 sec TTL, handles 100+ users)
 - Language switcher (Russian/English)
 - Collapsible sidebar with state persistence
 - Search dropdown with token preview
