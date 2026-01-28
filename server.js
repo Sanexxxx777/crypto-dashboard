@@ -51,7 +51,7 @@ const SECTORS = {
   'Layer 2': ['arbitrum', 'optimism', 'matic-network', 'mantle', 'immutable-x', 'starknet', 'zksync', 'manta-network', 'metis-token', 'loopring'],
   'DEX': ['uniswap', 'raydium', 'jupiter-exchange-solana', 'pancakeswap-token', 'curve-dao-token', 'aerodrome-finance', 'velodrome-finance', 'orca', 'camelot-token', 'sushiswap'],
   'DEX Aggregators': ['1inch', 'jupiter-exchange-solana', 'paraswap', 'cowswap', 'openocean-finance', 'dodo', 'kyber-network-crystal', 'hashflow', 'unizen', 'rango'],
-  'Derivatives': ['hyperliquid', 'gmx', 'dydx-chain', 'gains-network', 'synthetix-network-token', 'drift-protocol', 'vertex-protocol', 'aevo-exchange', 'ribbon-finance', 'lyra-finance'],
+  'Derivatives': ['hyperliquid', 'gmx', 'dydx-chain', 'gains-network', 'synthetix-network-token', 'drift-protocol', 'vertex-protocol', 'aevo-exchange', 'ribbon-finance', 'lyra-finance', 'apex-token-2'],
   'Lending': ['aave', 'compound-governance-token', 'venus', 'radiant-capital', 'morpho', 'euler', 'benqi', 'kamino', 'silo-finance', 'spark'],
   'Liquid Staking': ['lido-dao', 'rocket-pool', 'jito-governance-token', 'frax-share', 'ether-fi', 'ankr', 'stader', 'marinade', 'stride', 'stakewise'],
   'Stablecoins': ['maker', 'ethena', 'frax-share', 'liquity', 'rai', 'alchemix', 'angle-protocol', 'reserve-rights-token', 'spell-token', 'frax'],
@@ -66,7 +66,7 @@ const SECTORS = {
   'Prediction Markets': ['polymarket', 'gnosis', 'augur', 'azuro', 'thales', 'hedgehog-markets', 'zeitgeist', 'polkamarkets', 'omen', 'sx-network'],
   'RWA': ['ondo-finance', 'mantra-dao', 'centrifuge', 'goldfinch', 'maple', 'clearpool', 'pendle', 'polymesh', 'truefi', 'realio-network'],
   'Memes': ['dogecoin', 'shiba-inu', 'pepe', 'dogwifcoin', 'bonk', 'floki', 'brett-based', 'mog-coin', 'popcat', 'book-of-meme'],
-  'AI Agents': ['artificial-superintelligence-alliance', 'virtuals-protocol', 'ai16z', 'goatseus-maximus', 'fartcoin', 'griffain', 'zerebro', 'ai-rig-complex', 'cookie', 'aixbt']
+  'AI Agents': ['artificial-superintelligence-alliance', 'virtual-protocol', 'ai16z', 'goatseus-maximus', 'fartcoin', 'griffain', 'zerebro', 'ai-rig-complex', 'cookie', 'aixbt', 'giza']
 };
 
 // All token IDs from config (will be populated on first request)
@@ -365,11 +365,11 @@ function calculateMomentumScores(bullPhases) {
     'Layer 2': ['arbitrum', 'optimism', 'matic-network', 'mantle', 'immutable-x', 'starknet', 'zksync', 'manta-network', 'metis-token', 'loopring'],
     'DEX': ['uniswap', 'raydium', 'jupiter-exchange-solana', 'pancakeswap-token', 'curve-dao-token', 'aerodrome-finance', 'velodrome-finance', 'orca', 'camelot-token', 'sushiswap'],
     'Memes': ['dogecoin', 'shiba-inu', 'pepe', 'dogwifcoin', 'bonk', 'floki', 'brett-based', 'mog-coin', 'popcat', 'book-of-meme'],
-    'AI Agents': ['artificial-superintelligence-alliance', 'virtuals-protocol', 'ai16z', 'goatseus-maximus', 'fartcoin', 'griffain', 'zerebro', 'ai-rig-complex', 'cookie', 'aixbt'],
+    'AI Agents': ['artificial-superintelligence-alliance', 'virtual-protocol', 'ai16z', 'goatseus-maximus', 'fartcoin', 'griffain', 'zerebro', 'ai-rig-complex', 'cookie', 'aixbt', 'giza'],
     'Gaming': ['immutable-x', 'gala', 'the-sandbox', 'axie-infinity', 'ronin', 'beam-2', 'illuvium', 'enjincoin', 'ultra', 'echelon-prime'],
     'DePIN': ['helium', 'iotex', 'hivemapper', 'grass', 'dimo', 'render-token', 'filecoin', 'theta-token', 'akash-network', 'nosana'],
     'Lending': ['aave', 'compound-governance-token', 'venus', 'radiant-capital', 'morpho', 'euler', 'benqi', 'kamino', 'silo-finance', 'spark'],
-    'Derivatives': ['hyperliquid', 'gmx', 'dydx-chain', 'gains-network', 'synthetix-network-token', 'drift-protocol', 'vertex-protocol', 'aevo-exchange', 'ribbon-finance', 'lyra-finance'],
+    'Derivatives': ['hyperliquid', 'gmx', 'dydx-chain', 'gains-network', 'synthetix-network-token', 'drift-protocol', 'vertex-protocol', 'aevo-exchange', 'ribbon-finance', 'lyra-finance', 'apex-token-2'],
     'Liquid Staking': ['lido-dao', 'rocket-pool', 'jito-governance-token', 'frax-share', 'ether-fi', 'ankr', 'stader', 'marinade', 'stride', 'stakewise']
   };
 
@@ -415,7 +415,7 @@ function initializeMockData() {
     'floki': { base: 2.5, variance: 0.6 },
     'solana': { base: 2.2, variance: 0.4 },
     'sui': { base: 2.1, variance: 0.5 },
-    'virtuals-protocol': { base: 2.8, variance: 0.9 },
+    'virtual-protocol': { base: 2.8, variance: 0.9 },
     'ai16z': { base: 2.6, variance: 0.8 },
     'render-token': { base: 2.0, variance: 0.5 },
     'arbitrum': { base: 1.8, variance: 0.4 },
@@ -526,7 +526,7 @@ async function fetchAndCacheAllData() {
         'dodo', 'kyber-network-crystal', 'hashflow', 'unizen', 'rango',
         // Derivatives
         'hyperliquid', 'gmx', 'dydx-chain', 'gains-network', 'synthetix-network-token',
-        'drift-protocol', 'vertex-protocol', 'aevo-exchange', 'ribbon-finance', 'lyra-finance',
+        'drift-protocol', 'vertex-protocol', 'aevo-exchange', 'ribbon-finance', 'lyra-finance', 'apex-token-2',
         // Lending
         'aave', 'compound-governance-token', 'venus', 'radiant-capital', 'morpho',
         'euler', 'benqi', 'kamino', 'silo-finance', 'spark',
@@ -569,8 +569,8 @@ async function fetchAndCacheAllData() {
         'dogecoin', 'shiba-inu', 'pepe', 'dogwifcoin', 'bonk',
         'floki', 'brett-based', 'mog-coin', 'popcat', 'book-of-meme',
         // AI Agents
-        'artificial-superintelligence-alliance', 'virtuals-protocol', 'ai16z', 'goatseus-maximus', 'fartcoin',
-        'griffain', 'zerebro', 'ai-rig-complex', 'cookie', 'aixbt'
+        'artificial-superintelligence-alliance', 'virtual-protocol', 'ai16z', 'goatseus-maximus', 'fartcoin',
+        'griffain', 'zerebro', 'ai-rig-complex', 'cookie', 'aixbt', 'giza'
       ];
     }
 

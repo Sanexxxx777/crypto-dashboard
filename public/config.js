@@ -125,7 +125,7 @@ const SECTORS = {
   
   'Derivatives': [
     'hyperliquid', 'gmx', 'dydx-chain', 'gains-network', 'synthetix-network-token',
-    'drift-protocol', 'vertex-protocol', 'aevo-exchange', 'ribbon-finance', 'lyra-finance'
+    'drift-protocol', 'vertex-protocol', 'aevo-exchange', 'ribbon-finance', 'lyra-finance', 'apex-token-2'
   ],
   
   'Lending': [
@@ -199,8 +199,8 @@ const SECTORS = {
   ],
   
   'AI Agents': [
-    'artificial-superintelligence-alliance', 'virtuals-protocol', 'ai16z', 'goatseus-maximus', 'fartcoin',
-    'griffain', 'zerebro', 'ai-rig-complex', 'cookie', 'aixbt'
+    'artificial-superintelligence-alliance', 'virtual-protocol', 'ai16z', 'goatseus-maximus', 'fartcoin',
+    'griffain', 'zerebro', 'ai-rig-complex', 'cookie', 'aixbt', 'giza'
   ]
 };
 
