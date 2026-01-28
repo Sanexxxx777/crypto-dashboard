@@ -1,6 +1,6 @@
 # Crypto Sectors Dashboard
 
-Real-time crypto market visualization by sector (20 sectors, ~170 tokens).
+Real-time crypto market visualization by sector (20 sectors, 173 tokens).
 
 **Live:** https://sectormap.dpdns.org
 **Repo:** https://github.com/Sanexxxx777/crypto-dashboard
@@ -8,13 +8,15 @@ Real-time crypto market visualization by sector (20 sectors, ~170 tokens).
 ## Tech Stack
 - Express.js server with API proxy + caching
 - Vanilla JS (class-based frontend)
-- CoinGecko API (server-side, demo key)
+- CoinGecko API (server-side, Basic plan)
 - Alternative.me API (Fear & Greed Index)
+- Google Apps Script for Sheets integration
 
 ## Structure
 ```
 crypto-dashboard/
 ├── server.js           # Express + API proxy + cache + momentum, port 3001
+├── GoogleAppsScript.gs # Google Sheets integration (Rating + Portfolio)
 ├── public/
 │   ├── index.html      # SPA entry point
 │   ├── config.js       # Sectors, colors, tokens, icons, momentum config
@@ -88,7 +90,8 @@ Score = Beta×0.35 + Consistency×0.25 + Recency×0.20 + AvgGain×0.20
 ## API Endpoints
 | Endpoint | Description |
 |----------|-------------|
-| `/api/markets` | Cached token data (all 170 tokens) |
+| `/api/markets` | Cached token data (173 tokens) |
+| `/api/sheets` | Google Sheets optimized data |
 | `/api/cache-status` | Cache monitoring |
 | `/api/market-state` | Current bull/neutral/bear state |
 | `/api/momentum` | Token/sector momentum scores |
@@ -110,10 +113,33 @@ Score = Beta×0.35 + Consistency×0.25 + Recency×0.20 + AvgGain×0.20
 - Sorting: sectors and tokens by 24h profitability (descending)
 - SVG icons throughout (no emojis)
 
-## Version
-v2.2.1 (2026-01-27)
+## Google Sheets Integration
+`GoogleAppsScript.gs` — автообновляемая таблица с рейтингами.
 
-### Changelog v2.2.1
+**Листы:**
+- `Dashboard` — портфель (14 токенов) + обзор секторов
+- `Rating` — Alpha Score по всем токенам + рекомендации
+
+**Alpha Score (0-100):**
+- Top3: частота в топ-3 сектора
+- GreenDays: дни роста
+- AvgGain: средняя доходность
+- MoonDays: дни +15%+
+
+**Рекомендации:** UNDERVALUED_IN_HOT, BOUNCE_POTENTIAL, MOMENTUM, SLEEPERS
+
+## Version
+v2.3.0 (2026-01-28)
+
+### Changelog v2.3.0
+- **Google Sheets integration** — GoogleAppsScript.gs with Rating + Portfolio
+- **Alpha Score system** — composite token rating (0-100)
+- **Recommendations engine** — 4 types of trading signals
+- **New tokens**: giza (AI Agents), apex-token-2 (Derivatives)
+- **Fixed IDs**: virtual-protocol, maple
+- Total tokens: 173 (was 170)
+
+### v2.2.1 (2026-01-27)
 - Sorting by profitability: sectors and tokens sorted by 24h change (most profitable first)
 - Heatmap default sort: 24h (was mcap)
 - Cache/refresh interval: 30 sec (fixed incorrect "5 min" display)
