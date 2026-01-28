@@ -1110,10 +1110,10 @@ function formatGain(value) {
 
 function formatPrice(price) {
   if (!price) return 'N/A';
-  if (price >= 1000) return '$' + price.toLocaleString('en-US', { maximumFractionDigits: 0 });
-  if (price >= 1) return '$' + price.toFixed(2);
-  if (price >= 0.01) return '$' + price.toFixed(4);
-  return '$' + price.toFixed(6);
+  if (price >= 1000) return '$' + price.toLocaleString('ru-RU', { maximumFractionDigits: 0 });
+  if (price >= 1) return '$' + price.toFixed(2).replace('.', ',');
+  if (price >= 0.01) return '$' + price.toFixed(4).replace('.', ',');
+  return '$' + price.toFixed(6).replace('.', ',');
 }
 
 function formatMarketCap(mcap) {
