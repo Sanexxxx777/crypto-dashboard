@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sector Signals | Crypto Dashboard</title>
+  <link rel="icon" type="image/jpeg" href="favicon.jpg">
+  <style>
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-card: #1a1a24;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --accent: #6366f1;
+      --green: #22c55e;
+      --red: #ef4444;
+      --yellow: #eab308;
+      --border: #2a2a3a;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      font-size: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .header a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .stat-card .label {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    .filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .signals-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .signal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .signal-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .signal-icon.breakout { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
+    .signal-icon.alpha { background: linear-gradient(135deg, #22c55e, #10b981); }
+    .signal-icon.rotation { background: linear-gradient(135deg, #eab308, #f59e0b); }
+    .signal-icon.surge { background: linear-gradient(135deg, #22c55e, #34d399); }
+    .signal-icon.dump { background: linear-gradient(135deg, #ef4444, #f87171); }
+    .signal-icon.sector { background: linear-gradient(135deg, #3b82f6, #60a5fa); }
+    .signal-icon.market { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+
+    .signal-content h3 {
+      font-size: 1.125rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .signal-content .details {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .signal-content .reason {
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      background: var(--bg-secondary);
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+
+    .signal-time {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      text-align: right;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .badge.high { background: var(--green); color: #000; }
+    .badge.medium { background: var(--yellow); color: #000; }
+    .badge.low { background: var(--red); color: #fff; }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem;
+      color: var(--text-secondary);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .load-more {
+      display: block;
+      width: 100%;
+      padding: 1rem;
+      margin-top: 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .load-more:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 768px) {
+      .signal-card {
+        grid-template-columns: 1fr;
+      }
+      .signal-icon {
+        width: 40px;
+        height: 40px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>📊 Sector Signals</h1>
+    <a href="/">← Вернуться к Dashboard</a>
+  </div>
+
+  <div class="container">
+    <div class="stats" id="stats">
+      <div class="stat-card">
+        <div class="label">Всего сигналов</div>
+        <div class="value" id="totalSignals">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">За сегодня</div>
+        <div class="value" id="todaySignals">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Breakouts</div>
+        <div class="value" id="breakoutSignals">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Alpha</div>
+        <div class="value" id="alphaSignals">-</div>
+      </div>
+    </div>
+
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">Все</button>
+      <button class="filter-btn" data-filter="EARLY_BREAKOUT">Breakouts</button>
+      <button class="filter-btn" data-filter="ALPHA">Alpha</button>
+      <button class="filter-btn" data-filter="ROTATION">Rotation</button>
+      <button class="filter-btn" data-filter="TOKEN_SURGE">Surge</button>
+      <button class="filter-btn" data-filter="SECTOR">Секторы</button>
+    </div>
+
+    <div class="signals-list" id="signalsList">
+      <div class="loading">Загрузка сигналов...</div>
+    </div>
+
+    <button class="load-more" id="loadMore" style="display: none;">Загрузить ещё</button>
+  </div>
+
+  <script>
+    const API_URL = '/api/signals';
+    let currentFilter = 'all';
+    let offset = 0;
+    const limit = 20;
+    let allSignals = [];
+
+    // Signal type config
+    const SIGNAL_CONFIG = {
+      EARLY_BREAKOUT: { icon: '⚡', label: 'Early Breakout', class: 'breakout' },
+      ALPHA: { icon: '🎯', label: 'Alpha', class: 'alpha' },
+      ROTATION_IN: { icon: '🔄', label: 'Rotation IN', class: 'rotation' },
+      ROTATION_OUT: { icon: '🔄', label: 'Rotation OUT', class: 'rotation' },
+      TOKEN_SURGE: { icon: '🚀', label: 'Surge', class: 'surge' },
+      TOKEN_DUMP: { icon: '💥', label: 'Dump', class: 'dump' },
+      SECTOR_HOT: { icon: '📈', label: 'Sector Hot', class: 'sector' },
+      SECTOR_COLD: { icon: '📉', label: 'Sector Cold', class: 'sector' },
+      MARKET_BULL: { icon: '🐂', label: 'Bull Phase', class: 'market' },
+      MARKET_BEAR: { icon: '🐻', label: 'Bear Phase', class: 'market' },
+    };
+
+    async function fetchSignals(append = false) {
+      try {
+        const typeParam = currentFilter !== 'all' ? `&type=${currentFilter}` : '';
+        const url = `${API_URL}?limit=${limit}&offset=${offset}${typeParam}`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (append) {
+          allSignals = [...allSignals, ...data.signals];
+        } else {
+          allSignals = data.signals;
+        }
+
+        renderSignals();
+        updateStats(data);
+
+        document.getElementById('loadMore').style.display =
+          allSignals.length < data.total ? 'block' : 'none';
+
+      } catch (e) {
+        console.error('Error fetching signals:', e);
+        document.getElementById('signalsList').innerHTML =
+          '<div class="empty-state">Ошибка загрузки сигналов</div>';
+      }
+    }
+
+    function renderSignals() {
+      const container = document.getElementById('signalsList');
+
+      if (allSignals.length === 0) {
+        container.innerHTML = '<div class="empty-state">Нет сигналов</div>';
+        return;
+      }
+
+      container.innerHTML = allSignals.map(signal => {
+        const config = SIGNAL_CONFIG[signal.type] || { icon: '📊', label: signal.type, class: 'sector' };
+        const time = new Date(signal.timestamp);
+        const timeStr = formatTime(time);
+
+        return `
+          <div class="signal-card">
+            <div class="signal-icon ${config.class}">${config.icon}</div>
+            <div class="signal-content">
+              <h3>${config.label}: ${signal.token || signal.sector || '-'}</h3>
+              <div class="details">
+                ${signal.change_24h ? `24h: ${signal.change_24h > 0 ? '+' : ''}${signal.change_24h.toFixed(1)}%` : ''}
+                ${signal.sector ? `| Сектор: ${signal.sector}` : ''}
+                ${signal.mcap ? `| MCap: $${(signal.mcap / 1e6).toFixed(0)}M` : ''}
+              </div>
+              ${signal.reason ? `<div class="reason">${signal.reason}</div>` : ''}
+            </div>
+            <div class="signal-time">
+              ${timeStr}
+              ${signal.confidence ? `<br><span class="badge ${signal.confidence.toLowerCase()}">${signal.confidence}</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateStats(data) {
+      document.getElementById('totalSignals').textContent = data.total;
+
+      // Count today's signals
+      const today = new Date().toDateString();
+      const todayCount = allSignals.filter(s =>
+        new Date(s.timestamp).toDateString() === today
+      ).length;
+      document.getElementById('todaySignals').textContent = todayCount;
+
+      // Count by type
+      const breakouts = allSignals.filter(s => s.type === 'EARLY_BREAKOUT').length;
+      const alphas = allSignals.filter(s => s.type === 'ALPHA').length;
+      document.getElementById('breakoutSignals').textContent = breakouts;
+      document.getElementById('alphaSignals').textContent = alphas;
+    }
+
+    function formatTime(date) {
+      const now = new Date();
+      const diff = now - date;
+      const mins = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+
+      if (mins < 1) return 'только что';
+      if (mins < 60) return `${mins} мин назад`;
+      if (hours < 24) return `${hours} ч назад`;
+      if (days < 7) return `${days} дн назад`;
+      return date.toLocaleDateString('ru-RU');
+    }
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        offset = 0;
+        fetchSignals();
+      });
+    });
+
+    // Load more
+    document.getElementById('loadMore').addEventListener('click', () => {
+      offset += limit;
+      fetchSignals(true);
+    });
+
+    // Initial load
+    fetchSignals();
+
+    // Auto-refresh every 60 seconds
+    setInterval(() => {
+      offset = 0;
+      fetchSignals();
+    }, 60000);
+  </script>
+</body>
+</html>

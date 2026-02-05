@@ -10,20 +10,30 @@ Real-time crypto market visualization by sector (20 sectors, 173 tokens).
 - Vanilla JS (class-based frontend)
 - CoinGecko API (server-side, Basic plan)
 - Alternative.me API (Fear & Greed Index)
+- Groq API (Llama 3.3 70B) for AI features
 - Google Apps Script for Sheets integration
 
 ## Structure
 ```
 crypto-dashboard/
-├── server.js           # Express + API proxy + cache + momentum, port 3001
+├── server.js           # Express + API proxy + cache + momentum + AI, port 3001
 ├── GoogleAppsScript.gs # Google Sheets integration (Rating + Portfolio)
+├── src/
+│   └── aiHelper.js     # Groq AI integration (digests, explanations, chat)
 ├── public/
 │   ├── index.html      # SPA entry point
 │   ├── config.js       # Sectors, colors, tokens, icons, momentum config
 │   ├── app.js          # CryptoDashboard class + i18n + momentum UI
-│   └── styles.css      # Dark/light themes + momentum styles
+│   ├── styles.css      # Dark/light themes + momentum styles
+│   ├── signals.html    # Signal history page
+│   └── ai.html         # AI Analyst page (chat + digests)
+├── telegram-bot/       # Telegram alerts bot (v3.0 AI-powered)
+│   ├── sector_alerts_bot.py  # Main bot with AI digests
+│   ├── config.toml     # Config (gitignored)
+│   └── state.json      # Cooldowns state
 ├── data/               # Auto-created data storage
 │   ├── snapshots/      # Daily price snapshots (YYYY-MM-DD.json)
+│   ├── signals.json    # Signal history
 │   ├── bull_phases.json # Historical bull phase data
 │   └── momentum.json   # Calculated momentum scores
 ```
@@ -99,11 +109,25 @@ Score = Beta×0.35 + Consistency×0.25 + Recency×0.20 + AvgGain×0.20
 | `/api/fear-greed` | Fear & Greed Index (30min cache) |
 
 ## Server Info
-- Host: `poly` (185.147.127.126)
+- Host: `trading` (45.82.95.142)
 - Path: `/root/crypto-dashboard/`
 - Process: PM2 (`pm2 restart crypto-dashboard`)
+- Telegram bot: PM2 (`pm2 restart sector-alerts`)
 - Tunnel: Cloudflare → sectormap.dpdns.org
 - Port: 3001 (internal)
+
+## Telegram Alerts Bot
+Отслеживает изменения и отправляет алерты:
+- **Token surge/dump** — токен ±15% за 24ч
+- **Sector divergence** — сектор опережает/отстаёт от рынка на >5%
+- **Market state change** — переход bull/bear
+- **Daily report** — ежедневный отчёт в 9:00 UTC
+
+```bash
+# Deploy
+rsync -avz telegram-bot/ trading:~/crypto-dashboard/telegram-bot/
+ssh trading "pm2 restart sector-alerts"
+```
 
 ## Important Notes
 - Cache TTL: 30 seconds (server + frontend sync)
@@ -129,7 +153,37 @@ Score = Beta×0.35 + Consistency×0.25 + Recency×0.20 + AvgGain×0.20
 **Рекомендации:** UNDERVALUED_IN_HOT, BOUNCE_POTENTIAL, MOMENTUM, SLEEPERS
 
 ## Version
-v2.3.0 (2026-01-28)
+v3.0.0 (2026-02-05)
+
+### Changelog v3.0.0 — AI Integration
+- **AI-powered Digests** (Groq Llama 3.3 70B)
+  - Daily digest: утренний AI-обзор рынка (9:00 UTC)
+  - Weekly digest: глубокий AI-анализ недели (пн 9:00 UTC)
+  - Signal explanations: AI объясняет каждый сигнал
+- **AI Analyst Page** — `/ai.html`
+  - Чат с AI о рынке и секторах
+  - Генерация дайджестов по запросу
+  - Быстрые вопросы о горячих/холодных секторах
+- **Signals History Page** — `/signals.html`
+  - История всех сигналов с фильтрацией
+  - Статистика по типам сигналов
+- **API Endpoints**
+  - `POST /api/ai/daily-digest` — генерация дневного дайджеста
+  - `POST /api/ai/weekly-digest` — генерация недельного дайджеста
+  - `POST /api/ai/ask` — вопрос к AI
+  - `POST /api/ai/explain` — объяснение сигнала
+  - `GET /api/ai/status` — статус AI
+- **Telegram Bot v3.0** — AI-powered alerts
+  - AI daily/weekly digests в Telegram
+  - Fallback на простые отчёты если AI недоступен
+
+### Changelog v2.4.0
+- **Telegram Alerts Bot** — sector_alerts_bot.py
+  - Token surge/dump alerts (±15% 24h, 6h cooldown)
+  - Sector divergence alerts (>5% vs market, 12h cooldown)
+  - Market state change notifications (bull/bear)
+  - Daily reports at 9:00 UTC
+  - PM2: `sector-alerts`
 
 ### Changelog v2.3.0
 - **Google Sheets integration** — GoogleAppsScript.gs with Rating + Portfolio

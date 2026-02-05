@@ -15,6 +15,8 @@ const TRANSLATIONS = {
     sectors: 'Все секторы',
     telegram: 'Телеграм',
     setupManager: 'Setup Manager',
+    signals: 'Сигналы',
+    aiAnalyst: 'AI Аналитик',
     // Page titles
     marketOverview: 'Обзор рынка',
     performanceHeatmap: 'Тепловая карта',
@@ -105,6 +107,8 @@ const TRANSLATIONS = {
     sectors: 'All Sectors',
     telegram: 'Telegram',
     setupManager: 'Setup Manager',
+    signals: 'Signals',
+    aiAnalyst: 'AI Analyst',
     // Page titles
     marketOverview: 'Market Overview',
     performanceHeatmap: 'Performance Heatmap',

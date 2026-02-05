@@ -8,6 +8,14 @@ const path = require('path');
 const fs = require('fs');
 const compression = require('compression');
 
+// AI Helper (Groq)
+let aiHelper = null;
+try {
+  aiHelper = require('./src/aiHelper');
+} catch (e) {
+  console.log('[AI] Module not loaded:', e.message);
+}
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -16,10 +24,16 @@ const DATA_DIR = path.join(__dirname, 'data');
 const SNAPSHOTS_DIR = path.join(DATA_DIR, 'snapshots');
 const BULL_PHASES_FILE = path.join(DATA_DIR, 'bull_phases.json');
 const MOMENTUM_FILE = path.join(DATA_DIR, 'momentum.json');
+const SIGNALS_FILE = path.join(DATA_DIR, 'signals.json');
 
 // Ensure data directories exist
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(SNAPSHOTS_DIR)) fs.mkdirSync(SNAPSHOTS_DIR, { recursive: true });
+
+// Initialize signals file
+if (!fs.existsSync(SIGNALS_FILE)) {
+  fs.writeFileSync(SIGNALS_FILE, JSON.stringify({ signals: [] }, null, 2));
+}
 
 // CoinGecko API configuration - Basic plan ($29/mo)
 // 100k calls/month, 250/min rate limit
@@ -906,6 +920,300 @@ app.get('/api/bull-phases', (req, res) => {
   });
 });
 
+// ==================== SIGNALS API ====================
+
+// API key for posting signals (from telegram bot)
+const SIGNALS_API_KEY = process.env.SIGNALS_API_KEY || 'sector-alerts-2024';
+
+// Load signals from file
+function loadSignals() {
+  try {
+    if (fs.existsSync(SIGNALS_FILE)) {
+      return JSON.parse(fs.readFileSync(SIGNALS_FILE, 'utf8'));
+    }
+  } catch (e) {
+    console.error('[Signals] Error loading:', e.message);
+  }
+  return { signals: [] };
+}
+
+// Save signals to file
+function saveSignals(data) {
+  try {
+    fs.writeFileSync(SIGNALS_FILE, JSON.stringify(data, null, 2));
+  } catch (e) {
+    console.error('[Signals] Error saving:', e.message);
+  }
+}
+
+// POST /api/signals - Add new signal (from telegram bot)
+app.post('/api/signals', (req, res) => {
+  const apiKey = req.query.key || req.headers['x-api-key'];
+  if (apiKey !== SIGNALS_API_KEY) {
+    return res.status(401).json({ error: 'Invalid API key' });
+  }
+
+  const signal = req.body;
+  if (!signal || !signal.type) {
+    return res.status(400).json({ error: 'Invalid signal data' });
+  }
+
+  // Add timestamp if not present
+  signal.timestamp = signal.timestamp || new Date().toISOString();
+  signal.id = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+  const data = loadSignals();
+  data.signals.unshift(signal); // Add to beginning
+
+  // Keep only last 500 signals
+  if (data.signals.length > 500) {
+    data.signals = data.signals.slice(0, 500);
+  }
+
+  saveSignals(data);
+  console.log(`[Signals] New signal: ${signal.type} - ${signal.token || signal.sector || 'market'}`);
+
+  res.json({ success: true, id: signal.id });
+});
+
+// GET /api/signals - Get signal history
+app.get('/api/signals', (req, res) => {
+  const limit = Math.min(parseInt(req.query.limit) || 50, 200);
+  const offset = parseInt(req.query.offset) || 0;
+  const type = req.query.type; // Filter by type
+  const token = req.query.token; // Filter by token
+
+  const data = loadSignals();
+  let signals = data.signals;
+
+  // Apply filters
+  if (type) {
+    signals = signals.filter(s => s.type === type);
+  }
+  if (token) {
+    signals = signals.filter(s => s.token && s.token.toLowerCase().includes(token.toLowerCase()));
+  }
+
+  // Paginate
+  const total = signals.length;
+  signals = signals.slice(offset, offset + limit);
+
+  res.json({
+    signals,
+    total,
+    limit,
+    offset
+  });
+});
+
+// ==================== AI ENDPOINTS ====================
+
+// GET /api/ai/status - Check AI availability
+app.get('/api/ai/status', (req, res) => {
+  if (!aiHelper) {
+    return res.json({ available: false, error: 'AI module not loaded' });
+  }
+  res.json(aiHelper.getStatus());
+});
+
+// POST /api/ai/daily-digest - Generate daily digest
+app.post('/api/ai/daily-digest', async (req, res) => {
+  if (!aiHelper || !aiHelper.isAvailable) {
+    return res.status(503).json({ error: 'AI not available' });
+  }
+
+  try {
+    // Gather data
+    const sectors = await getSectorsSummary();
+    const todaySignals = getTodaySignals();
+    const marketState = getMarketState();
+    const fearGreed = await getFearGreedIndex();
+
+    const result = await aiHelper.generateDailyDigest({
+      sectors,
+      signals: todaySignals,
+      marketState: marketState?.state,
+      fearGreed
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error('[AI] Daily digest error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/ai/weekly-digest - Generate weekly digest
+app.post('/api/ai/weekly-digest', async (req, res) => {
+  if (!aiHelper || !aiHelper.isAvailable) {
+    return res.status(503).json({ error: 'AI not available' });
+  }
+
+  try {
+    // Gather data
+    const sectors = await getSectorsSummary();
+    const weekSignals = getWeekSignals();
+    const momentum = loadMomentumData();
+
+    const result = await aiHelper.generateWeeklyDigest({
+      sectors,
+      signals: weekSignals,
+      weeklyStats: {},
+      momentum
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error('[AI] Weekly digest error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/ai/explain - Explain a signal
+app.post('/api/ai/explain', async (req, res) => {
+  if (!aiHelper || !aiHelper.isAvailable) {
+    return res.status(503).json({ error: 'AI not available' });
+  }
+
+  const { signal } = req.body;
+  if (!signal) {
+    return res.status(400).json({ error: 'Signal data required' });
+  }
+
+  try {
+    const sectors = await getSectorsSummary();
+    const sectorData = sectors.find(s => s.name === signal.sector);
+    const result = await aiHelper.explainSignal(signal, sectorData);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST /api/ai/ask - Ask AI a question
+app.post('/api/ai/ask', async (req, res) => {
+  if (!aiHelper || !aiHelper.isAvailable) {
+    return res.status(503).json({ error: 'AI not available' });
+  }
+
+  const { question } = req.body;
+  if (!question) {
+    return res.status(400).json({ error: 'Question required' });
+  }
+
+  try {
+    // Build market context
+    const sectors = await getSectorsSummary();
+    const marketState = getMarketState();
+    const fearGreed = await getFearGreedIndex();
+
+    const context = buildMarketContext(sectors, marketState, fearGreed);
+    const result = await aiHelper.askQuestion(question, context);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Helper: Get sectors summary for AI
+async function getSectorsSummary() {
+  // Ensure cache is fresh
+  if (!isCacheValid()) {
+    await fetchAllMarketData();
+  }
+
+  if (!cache.data) return [];
+
+  const sectorSummary = [];
+  for (const [sectorName, tokenIds] of Object.entries(SECTORS)) {
+    const tokens = cache.data.filter(t => tokenIds.includes(t.id));
+    if (tokens.length === 0) continue;
+
+    const avgChange24h = tokens.reduce((sum, t) => sum + (t.price_change_percentage_24h || 0), 0) / tokens.length;
+    const avgChange7d = tokens.reduce((sum, t) => sum + (t.price_change_percentage_7d_in_currency || 0), 0) / tokens.length;
+    const totalMcap = tokens.reduce((sum, t) => sum + (t.market_cap || 0), 0);
+
+    sectorSummary.push({
+      name: sectorName,
+      change_24h: avgChange24h,
+      change_7d: avgChange7d,
+      market_cap: totalMcap,
+      tokens_count: tokens.length
+    });
+  }
+
+  return sectorSummary;
+}
+
+// Helper: Get today's signals
+function getTodaySignals() {
+  const data = loadSignals();
+  const today = new Date().toDateString();
+  return data.signals.filter(s => new Date(s.timestamp).toDateString() === today);
+}
+
+// Helper: Get week's signals
+function getWeekSignals() {
+  const data = loadSignals();
+  const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  return data.signals.filter(s => new Date(s.timestamp).getTime() > weekAgo);
+}
+
+// Helper: Get market state
+function getMarketState() {
+  const momentum = loadMomentumData();
+  if (momentum && momentum.currentPhase) {
+    return { state: 'bull', phase: momentum.currentPhase };
+  }
+  // TODO: determine bear/neutral from BTC data
+  return { state: 'neutral' };
+}
+
+// Helper: Get Fear & Greed Index
+async function getFearGreedIndex() {
+  try {
+    // Check cache
+    if (fearGreedCache.data && (Date.now() - fearGreedCache.timestamp < FEAR_GREED_TTL)) {
+      return fearGreedCache.data;
+    }
+
+    // Fetch from Alternative.me API
+    const response = await fetch('https://api.alternative.me/fng/?limit=1');
+    if (!response.ok) return fearGreedCache.data || null;
+
+    const data = await response.json();
+    const fngData = data.data?.[0];
+    if (!fngData) return fearGreedCache.data || null;
+
+    const result = {
+      value: parseInt(fngData.value),
+      classification: fngData.value_classification,
+      timestamp: fngData.timestamp
+    };
+
+    fearGreedCache = { data: result, timestamp: Date.now() };
+    return result;
+  } catch (e) {
+    return fearGreedCache.data || null;
+  }
+}
+
+// Helper: Build market context for AI questions
+function buildMarketContext(sectors, marketState, fearGreed) {
+  let context = `Состояние рынка: ${marketState?.state || 'unknown'}\n`;
+  context += `Fear & Greed: ${fearGreed?.value || 'N/A'} (${fearGreed?.classification || 'N/A'})\n\n`;
+  context += `Секторы (по 24h):\n`;
+
+  sectors
+    .sort((a, b) => (b.change_24h || 0) - (a.change_24h || 0))
+    .slice(0, 10)
+    .forEach(s => {
+      context += `• ${s.name}: ${s.change_24h > 0 ? '+' : ''}${s.change_24h?.toFixed(1)}%\n`;
+    });
+
+  return context;
+}
+
 // Helper: Calculate average phase duration
 function calculateAvgPhaseDuration(phases) {
   if (phases.length === 0) return '0d';
@@ -942,7 +1250,7 @@ app.listen(PORT, () => {
   console.log(`
 ╔═══════════════════════════════════════════════════════════╗
 ║                                                           ║
-║   Crypto Sectors Dashboard v3.1 - UNIFIED API             ║
+║   Crypto Sectors Dashboard v3.3 - AI POWERED              ║
 ║                                                           ║
 ║   Server: http://localhost:${PORT}                          ║
 ║                                                           ║
@@ -952,9 +1260,12 @@ app.listen(PORT, () => {
 ║   • /api/cache-status - Cache monitoring + stats          ║
 ║   • /api/fear-greed   - Fear & Greed Index                ║
 ║   • /api/momentum     - Momentum ratings                  ║
+║   • /api/signals      - Sector alerts history (NEW!)      ║
+║                                                           ║
+║   Pages:                                                  ║
+║   • /signals.html     - Signal history viewer             ║
 ║                                                           ║
 ║   Cache TTL: 30 seconds (shared by website + sheets)      ║
-║   Sheets API Key: ${SHEETS_API_KEY}                  ║
 ║                                                           ║
 ╚═══════════════════════════════════════════════════════════╝
   `);
