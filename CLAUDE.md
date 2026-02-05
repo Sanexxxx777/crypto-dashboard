@@ -50,17 +50,15 @@ COINGECKO_API_KEY=your-key npm start
 
 ## Deploy to Server
 ```bash
-# Copy all files
-scp -r public server.js package.json poly:/root/crypto-dashboard/
+# Full deploy (excluding node_modules, .git)
+rsync -avz --exclude 'node_modules' --exclude '.git' . trading:~/crypto-dashboard/
 
-# Or single file update
-scp public/app.js poly:/root/crypto-dashboard/public/
-
-# Restart
-ssh poly "pm2 restart crypto-dashboard"
+# Restart services
+ssh trading "pm2 restart crypto-dashboard sector-alerts"
 
 # Check logs
-ssh poly "pm2 logs crypto-dashboard --lines 20 --nostream"
+ssh trading "pm2 logs crypto-dashboard --lines 20 --nostream"
+ssh trading "pm2 logs sector-alerts --lines 20 --nostream"
 ```
 
 ## Features
@@ -107,6 +105,12 @@ Score = Beta×0.35 + Consistency×0.25 + Recency×0.20 + AvgGain×0.20
 | `/api/momentum` | Token/sector momentum scores |
 | `/api/bull-phases` | Historical bull phase data |
 | `/api/fear-greed` | Fear & Greed Index (30min cache) |
+| `/api/signals` | GET/POST signal history |
+| `/api/ai/status` | AI availability check |
+| `/api/ai/daily-digest` | POST: AI daily market analysis |
+| `/api/ai/weekly-digest` | POST: AI weekly deep analysis |
+| `/api/ai/ask` | POST: Ask AI about market |
+| `/api/ai/explain` | POST: Explain signal with AI |
 
 ## Server Info
 - Host: `trading` (45.82.95.142)
@@ -116,26 +120,41 @@ Score = Beta×0.35 + Consistency×0.25 + Recency×0.20 + AvgGain×0.20
 - Tunnel: Cloudflare → sectormap.dpdns.org
 - Port: 3001 (internal)
 
-## Telegram Alerts Bot
-Отслеживает изменения и отправляет алерты:
-- **Token surge/dump** — токен ±15% за 24ч
-- **Sector divergence** — сектор опережает/отстаёт от рынка на >5%
-- **Market state change** — переход bull/bear
-- **Daily report** — ежедневный отчёт в 9:00 UTC
+## Telegram Alerts Bot v3.0
+AI-powered алерты по крипто-секторам:
+
+| Тип | Описание | Cooldown |
+|-----|----------|----------|
+| **Token Surge/Dump** | Токен ±15% за 24ч | 6ч |
+| **Early Breakout** | Flat 7d → рост 24h (ранний сигнал!) | 24ч |
+| **Alpha Detection** | Токен обгоняет сектор >10% | 12ч |
+| **Sector Rotation** | Деньги входят/выходят из сектора | 12ч |
+| **Market State** | Переход bull/bear | — |
+| **AI Daily Digest** | Утренний AI-обзор (9:00 UTC) | 24ч |
+| **AI Weekly Digest** | Глубокий AI-анализ (пн 9:00) | 7д |
 
 ```bash
 # Deploy
 rsync -avz telegram-bot/ trading:~/crypto-dashboard/telegram-bot/
 ssh trading "pm2 restart sector-alerts"
+ssh trading "pm2 logs sector-alerts --lines 20 --nostream"
 ```
 
 ## Important Notes
 - Cache TTL: 30 seconds (server + frontend sync)
-- CoinGecko demo API key in server.js (rate limited)
+- CoinGecko API key in server.js (Basic plan)
 - Fear & Greed from Alternative.me (free, no key)
+- Groq API key in `ecosystem.config.js` (gitignored)
 - User preferences in localStorage (theme, lang, sidebar)
 - Sorting: sectors and tokens by 24h profitability (descending)
 - SVG icons throughout (no emojis)
+
+## Environment Variables
+| Variable | Description | Location |
+|----------|-------------|----------|
+| `GROQ_API_KEY` | AI API key (Llama 3.3) | ecosystem.config.js |
+| `COINGECKO_API_KEY` | Market data | server.js (hardcoded) |
+| `SIGNALS_API_KEY` | Signal write access | server.js |
 
 ## Google Sheets Integration
 `GoogleAppsScript.gs` — автообновляемая таблица с рейтингами.
