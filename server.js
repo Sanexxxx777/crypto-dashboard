@@ -3,6 +3,11 @@
  * Express server with CoinGecko API proxy, caching, and Momentum Rating
  */
 
+require('dotenv').config();
+
+const Sentry = require("@sentry/node");
+Sentry.init({ dsn: "https://bfe364105f901733843a4bed522ef195@o4510836114194432.ingest.de.sentry.io/4510836135952464" });
+
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
@@ -25,6 +30,7 @@ const SNAPSHOTS_DIR = path.join(DATA_DIR, 'snapshots');
 const BULL_PHASES_FILE = path.join(DATA_DIR, 'bull_phases.json');
 const MOMENTUM_FILE = path.join(DATA_DIR, 'momentum.json');
 const SIGNALS_FILE = path.join(DATA_DIR, 'signals.json');
+const DIGESTS_FILE = path.join(DATA_DIR, 'digests.json');
 
 // Ensure data directories exist
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -35,9 +41,14 @@ if (!fs.existsSync(SIGNALS_FILE)) {
   fs.writeFileSync(SIGNALS_FILE, JSON.stringify({ signals: [] }, null, 2));
 }
 
+// Initialize digests file
+if (!fs.existsSync(DIGESTS_FILE)) {
+  fs.writeFileSync(DIGESTS_FILE, JSON.stringify({ daily: null, weekly: null }, null, 2));
+}
+
 // CoinGecko API configuration - Basic plan ($29/mo)
 // 100k calls/month, 250/min rate limit
-const COINGECKO_API_KEY = 'CG-XYGuN7yVwECrpsrLw65M14mr';
+const COINGECKO_API_KEY = process.env.COINGECKO_API_KEY || '';
 const COINGECKO_BASE_URL = 'https://pro-api.coingecko.com/api/v3';
 
 // Cache configuration - 30 seconds with batch 200 (~86k calls/month)
@@ -58,6 +69,9 @@ const stats = {
   cacheHits: 0,
   startTime: Date.now()
 };
+
+// SSE clients for real-time notifications
+const sseClients = new Set();
 
 // Sectors configuration for /api/sheets
 const SECTORS = {
@@ -336,7 +350,9 @@ function calculateMomentumScores(bullPhases) {
     const recentPhases = stats.gains.slice(-5);
     const weights = recentPhases.map((_, i) => (i + 1) / recentPhases.length);
     const totalWeight = weights.reduce((a, b) => a + b, 0);
-    const recencyGain = recentPhases.reduce((sum, gain, i) => sum + gain * weights[i], 0) / totalWeight;
+    const recencyGain = totalWeight > 0
+      ? recentPhases.reduce((sum, gain, i) => sum + gain * weights[i], 0) / totalWeight
+      : 0;
 
     // Normalize components to 0-100 scale
     const normBeta = Math.min(100, Math.max(0, (avgBeta / 5) * 100)); // Assume max beta of 5x
@@ -973,6 +989,20 @@ app.post('/api/signals', (req, res) => {
   saveSignals(data);
   console.log(`[Signals] New signal: ${signal.type} - ${signal.token || signal.sector || 'market'}`);
 
+  // Broadcast to SSE clients
+  broadcastSSE({
+    type: 'signal',
+    signal: {
+      id: signal.id,
+      type: signal.type,
+      token: signal.token,
+      sector: signal.sector,
+      change_24h: signal.change_24h,
+      reason: signal.reason,
+      timestamp: signal.timestamp
+    }
+  });
+
   res.json({ success: true, id: signal.id });
 });
 
@@ -1008,6 +1038,56 @@ app.get('/api/signals', (req, res) => {
 
 // ==================== AI ENDPOINTS ====================
 
+// Simple rate limiter for AI endpoints (1 request per 5 sec per IP)
+const aiRateLimits = new Map();
+function aiRateLimit(req, res, next) {
+  const ip = req.ip || req.connection.remoteAddress;
+  const now = Date.now();
+  const lastRequest = aiRateLimits.get(ip);
+  if (lastRequest && now - lastRequest < 5000) {
+    return res.status(429).json({ error: 'Too many requests. Wait 5 seconds.' });
+  }
+  aiRateLimits.set(ip, now);
+  // Cleanup old entries every 100 requests
+  if (aiRateLimits.size > 1000) {
+    const cutoff = now - 60000;
+    for (const [key, ts] of aiRateLimits) {
+      if (ts < cutoff) aiRateLimits.delete(key);
+    }
+  }
+  next();
+}
+
+// ==================== AI DIGEST PERSISTENCE ====================
+
+function loadDigests() {
+  try {
+    if (fs.existsSync(DIGESTS_FILE)) {
+      return JSON.parse(fs.readFileSync(DIGESTS_FILE, 'utf8'));
+    }
+  } catch (e) {
+    console.error('[AI] Error loading digests:', e.message);
+  }
+  return { daily: null, weekly: null };
+}
+
+function saveDigest(type, content) {
+  const digests = loadDigests();
+  digests[type] = {
+    content,
+    timestamp: new Date().toISOString(),
+    date: new Date().toLocaleDateString('ru-RU')
+  };
+  fs.writeFileSync(DIGESTS_FILE, JSON.stringify(digests, null, 2));
+  console.log(`[AI] ${type} digest saved`);
+}
+
+// GET /api/ai/last-digests - Get last saved digests
+app.get('/api/ai/last-digests', (req, res) => {
+  const digests = loadDigests();
+  res.json(digests);
+});
+
 // GET /api/ai/status - Check AI availability
 app.get('/api/ai/status', (req, res) => {
   if (!aiHelper) {
@@ -1017,7 +1097,7 @@ app.get('/api/ai/status', (req, res) => {
 });
 
 // POST /api/ai/daily-digest - Generate daily digest
-app.post('/api/ai/daily-digest', async (req, res) => {
+app.post('/api/ai/daily-digest', aiRateLimit, async (req, res) => {
   if (!aiHelper || !aiHelper.isAvailable) {
     return res.status(503).json({ error: 'AI not available' });
   }
@@ -1036,6 +1116,10 @@ app.post('/api/ai/daily-digest', async (req, res) => {
       fearGreed
     });
 
+    if (result.success) {
+      saveDigest('daily', result.digest);
+    }
+
     res.json(result);
   } catch (error) {
     console.error('[AI] Daily digest error:', error);
@@ -1044,7 +1128,7 @@ app.post('/api/ai/daily-digest', async (req, res) => {
 });
 
 // POST /api/ai/weekly-digest - Generate weekly digest
-app.post('/api/ai/weekly-digest', async (req, res) => {
+app.post('/api/ai/weekly-digest', aiRateLimit, async (req, res) => {
   if (!aiHelper || !aiHelper.isAvailable) {
     return res.status(503).json({ error: 'AI not available' });
   }
@@ -1062,6 +1146,10 @@ app.post('/api/ai/weekly-digest', async (req, res) => {
       momentum
     });
 
+    if (result.success) {
+      saveDigest('weekly', result.digest);
+    }
+
     res.json(result);
   } catch (error) {
     console.error('[AI] Weekly digest error:', error);
@@ -1070,7 +1158,7 @@ app.post('/api/ai/weekly-digest', async (req, res) => {
 });
 
 // POST /api/ai/explain - Explain a signal
-app.post('/api/ai/explain', async (req, res) => {
+app.post('/api/ai/explain', aiRateLimit, async (req, res) => {
   if (!aiHelper || !aiHelper.isAvailable) {
     return res.status(503).json({ error: 'AI not available' });
   }
@@ -1091,7 +1179,7 @@ app.post('/api/ai/explain', async (req, res) => {
 });
 
 // POST /api/ai/ask - Ask AI a question
-app.post('/api/ai/ask', async (req, res) => {
+app.post('/api/ai/ask', aiRateLimit, async (req, res) => {
   if (!aiHelper || !aiHelper.isAvailable) {
     return res.status(503).json({ error: 'AI not available' });
   }
@@ -1228,6 +1316,112 @@ function calculateAvgPhaseDuration(phases) {
   return avg < 1 ? `${Math.round(avg * 24)}h` : `${avg.toFixed(1)}d`;
 }
 
+// ==================== SSE (Server-Sent Events) ====================
+
+app.get('/api/events', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.flushHeaders();
+
+  // Send initial heartbeat
+  res.write('data: {"type":"connected"}\n\n');
+
+  sseClients.add(res);
+  console.log(`[SSE] Client connected (total: ${sseClients.size})`);
+
+  req.on('close', () => {
+    sseClients.delete(res);
+    console.log(`[SSE] Client disconnected (total: ${sseClients.size})`);
+  });
+
+  // Keep-alive every 30s
+  const keepAlive = setInterval(() => {
+    res.write(': keepalive\n\n');
+  }, 30000);
+
+  req.on('close', () => clearInterval(keepAlive));
+});
+
+// Broadcast event to all SSE clients
+function broadcastSSE(event) {
+  const data = `data: ${JSON.stringify(event)}\n\n`;
+  for (const client of sseClients) {
+    try {
+      client.write(data);
+    } catch (e) {
+      sseClients.delete(client);
+    }
+  }
+}
+
+// ==================== FILTERED API ====================
+
+app.get('/api/filtered', async (req, res) => {
+  try {
+    const data = isCacheValid() ? cache.data : await fetchAndCache();
+    if (!data) {
+      return res.status(503).json({ error: 'No data available' });
+    }
+
+    // Parse query filters
+    const sectors = req.query.sectors ? req.query.sectors.split(',') : null;
+    const minChange = parseFloat(req.query.minChange) || null;
+    const maxChange = parseFloat(req.query.maxChange) || null;
+    const minVolume = parseFloat(req.query.minVolume) || null;
+    const minMcap = parseFloat(req.query.minMcap) || null;
+    const search = req.query.search ? req.query.search.toLowerCase() : null;
+
+    // Build sector-token lookup
+    const tokenToSector = {};
+    for (const [sectorName, tokenIds] of Object.entries(SECTORS)) {
+      for (const id of tokenIds) {
+        tokenToSector[id] = sectorName;
+      }
+    }
+
+    // Filter tokens
+    let filtered = data.filter(token => {
+      // Sector filter
+      if (sectors) {
+        const tokenSector = tokenToSector[token.id];
+        if (!tokenSector || !sectors.includes(tokenSector)) return false;
+      }
+
+      // Price change filter
+      const change24h = token.price_change_percentage_24h_in_currency;
+      if (minChange !== null && (change24h === null || Math.abs(change24h) < minChange)) return false;
+      if (maxChange !== null && change24h !== null && Math.abs(change24h) > maxChange) return false;
+
+      // Volume filter
+      if (minVolume !== null && (token.total_volume || 0) < minVolume) return false;
+
+      // Market cap filter
+      if (minMcap !== null && (token.market_cap || 0) < minMcap) return false;
+
+      // Search filter
+      if (search) {
+        const name = (token.name || '').toLowerCase();
+        const symbol = (token.symbol || '').toLowerCase();
+        if (!name.includes(search) && !symbol.includes(search)) return false;
+      }
+
+      return true;
+    });
+
+    res.json({
+      success: true,
+      total: filtered.length,
+      data: filtered
+    });
+
+  } catch (error) {
+    console.error('[Filtered] Error:', error.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // Static files with cache control
 app.use(express.static(path.join(__dirname, 'public'), {
   etag: true,
@@ -1244,6 +1438,86 @@ app.use(express.static(path.join(__dirname, 'public'), {
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+
+// ==================== AI DIGEST AUTO-GENERATION ====================
+
+async function generateAndSaveDigest(type) {
+  if (!aiHelper || !aiHelper.isAvailable) {
+    console.log(`[AI] Skipping ${type} digest: AI not available`);
+    return;
+  }
+
+  try {
+    console.log(`[AI] Auto-generating ${type} digest...`);
+    const sectors = await getSectorsSummary();
+
+    if (type === 'daily') {
+      const todaySignals = getTodaySignals();
+      const marketState = getMarketState();
+      const fearGreed = await getFearGreedIndex();
+      const result = await aiHelper.generateDailyDigest({
+        sectors,
+        signals: todaySignals,
+        marketState: marketState?.state,
+        fearGreed
+      });
+      if (result.success) {
+        saveDigest('daily', result.digest);
+        console.log('[AI] Daily digest auto-generated successfully');
+      }
+    } else {
+      const weekSignals = getWeekSignals();
+      const momentum = loadMomentumData();
+      const result = await aiHelper.generateWeeklyDigest({
+        sectors,
+        signals: weekSignals,
+        weeklyStats: {},
+        momentum
+      });
+      if (result.success) {
+        saveDigest('weekly', result.digest);
+        console.log('[AI] Weekly digest auto-generated successfully');
+      }
+    }
+  } catch (e) {
+    console.error(`[AI] Auto-generate ${type} digest error:`, e.message);
+  }
+}
+
+function scheduleDigests() {
+  // Check every minute if it's time to generate
+  setInterval(() => {
+    const now = new Date();
+    const utcHour = now.getUTCHours();
+    const utcMinute = now.getUTCMinutes();
+    const utcDay = now.getUTCDay(); // 0=Sun, 1=Mon
+
+    // Daily digest at 9:00 UTC
+    if (utcHour === 9 && utcMinute === 0) {
+      const digests = loadDigests();
+      const lastDaily = digests.daily?.timestamp;
+      const hourAgo = Date.now() - 3600000;
+      if (!lastDaily || new Date(lastDaily).getTime() < hourAgo) {
+        generateAndSaveDigest('daily');
+      }
+    }
+
+    // Weekly digest on Monday 9:05 UTC
+    if (utcDay === 1 && utcHour === 9 && utcMinute === 5) {
+      const digests = loadDigests();
+      const lastWeekly = digests.weekly?.timestamp;
+      const dayAgo = Date.now() - 86400000;
+      if (!lastWeekly || new Date(lastWeekly).getTime() < dayAgo) {
+        generateAndSaveDigest('weekly');
+      }
+    }
+  }, 60000); // Check every 60 seconds
+
+  console.log('[AI] Digest scheduler started (daily 9:00 UTC, weekly Mon 9:05 UTC)');
+}
+
+// Sentry error handler (must be after all routes)
+Sentry.setupExpressErrorHandler(app);
 
 // Start server
 app.listen(PORT, () => {
@@ -1278,6 +1552,9 @@ app.listen(PORT, () => {
 
   // Background refresh every 30 seconds
   setInterval(fetchAndCacheAllData, CACHE_TTL);
+
+  // Schedule AI digest auto-generation
+  scheduleDigests();
 });
 
 // Graceful shutdown

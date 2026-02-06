@@ -27,9 +27,12 @@ crypto-dashboard/
 │   ├── styles.css      # Dark/light themes + momentum styles
 │   ├── signals.html    # Signal history page
 │   └── ai.html         # AI Analyst page (chat + digests)
-├── telegram-bot/       # Telegram alerts bot (v3.0 AI-powered)
-│   ├── sector_alerts_bot.py  # Main bot with AI digests
+├── telegram-bot/       # Telegram alerts bot v4.0 (multi-user)
+│   ├── sector_alerts_bot.py  # AlertEngine + SectorAlertsBot
+│   ├── user_manager.py       # Multi-user management
+│   ├── requirements.txt      # Python dependencies
 │   ├── config.toml     # Config (gitignored)
+│   ├── users.json      # User prefs (gitignored)
 │   └── state.json      # Cooldowns state
 ├── data/               # Auto-created data storage
 │   ├── snapshots/      # Daily price snapshots (YYYY-MM-DD.json)
@@ -62,12 +65,14 @@ ssh trading "pm2 logs sector-alerts --lines 20 --nostream"
 ```
 
 ## Features
-- 4 views: Overview, Heatmap, All Sectors, **Momentum** (Сила роста)
+- 6 views: Overview, Heatmap, All Sectors, **Momentum**, **AI Analyst**, **Signals**
 - 24h/7d/30d period switching
 - Search with token preview dropdown
+- **Unified filter panel** (sectors, change%, volume, mcap, momentum tier)
+- **Real-time toast notifications** via SSE (pump/dump/breakout/alpha/rotation)
+- Notification settings: type toggles, sound on/off, saved in localStorage
 - Quick sectors bar (compact horizontal dashboard)
 - Heatmap sorting (market cap, 24h/7d/30d change, name)
-- Heatmap text with black outline for visibility
 - Collapsible sidebar (icons-only mode)
 - Dark/light theme toggle
 - Language switcher (RU/EN)
@@ -100,12 +105,15 @@ Score = Beta×0.35 + Consistency×0.25 + Recency×0.20 + AvgGain×0.20
 |----------|-------------|
 | `/api/markets` | Cached token data (173 tokens) |
 | `/api/sheets` | Google Sheets optimized data |
+| `/api/filtered` | Filtered tokens (sectors, change%, volume, mcap) |
+| `/api/events` | SSE stream for real-time signal push |
 | `/api/cache-status` | Cache monitoring |
 | `/api/market-state` | Current bull/neutral/bear state |
 | `/api/momentum` | Token/sector momentum scores |
 | `/api/bull-phases` | Historical bull phase data |
 | `/api/fear-greed` | Fear & Greed Index (30min cache) |
 | `/api/signals` | GET/POST signal history |
+| `/api/ai/last-digests` | GET: Last saved daily/weekly digests |
 | `/api/ai/status` | AI availability check |
 | `/api/ai/daily-digest` | POST: AI daily market analysis |
 | `/api/ai/weekly-digest` | POST: AI weekly deep analysis |
@@ -120,18 +128,26 @@ Score = Beta×0.35 + Consistency×0.25 + Recency×0.20 + AvgGain×0.20
 - Tunnel: Cloudflare → sectormap.dpdns.org
 - Port: 3001 (internal)
 
-## Telegram Alerts Bot v3.0
-AI-powered алерты по крипто-секторам:
+## Telegram Alerts Bot v4.1
+Мультипользовательский бот, полностью на русском.
+Tech: python-telegram-bot + aiohttp + tomli
 
-| Тип | Описание | Cooldown |
-|-----|----------|----------|
-| **Token Surge/Dump** | Токен ±15% за 24ч | 6ч |
-| **Early Breakout** | Flat 7d → рост 24h (ранний сигнал!) | 24ч |
-| **Alpha Detection** | Токен обгоняет сектор >10% | 12ч |
-| **Sector Rotation** | Деньги входят/выходят из сектора | 12ч |
-| **Market State** | Переход bull/bear | — |
-| **AI Daily Digest** | Утренний AI-обзор (9:00 UTC) | 24ч |
-| **AI Weekly Digest** | Глубокий AI-анализ (пн 9:00) | 7д |
+**Команды:** /start, /help, /status, /alerts, /settings, /filters, /test
+**Админ:** /admin, /broadcast (ID: 698379097)
+
+| Тип | Описание | Кулдаун | Default |
+|-----|----------|---------|---------|
+| pump/dump | Токен ±15% за 24ч | 6ч | ON |
+| early_breakout | Флэт 7д → рост 24ч | 24ч | ON |
+| alpha | Токен обгоняет сектор >10% | 12ч | ON |
+| rotation_in | Деньги входят в сектор | 24ч | ON |
+| rotation_out | Деньги выходят | 24ч | OFF |
+| sector_divergence | Сектор vs рынок >5% | 12ч | OFF |
+| market_state | Переход bull/bear | — | ON |
+| daily/weekly_report | AI-обзоры (9:00 UTC) | 24ч/7д | ON |
+
+**Multi-user:** UserManager (users.json), per-user alert types/filters/quiet hours
+**Фильтры:** /filters set min_change_pct, coins, blacklist_coins
 
 ```bash
 # Deploy
@@ -172,7 +188,65 @@ ssh trading "pm2 logs sector-alerts --lines 20 --nostream"
 **Рекомендации:** UNDERVALUED_IN_HOT, BOUNCE_POTENTIAL, MOMENTUM, SLEEPERS
 
 ## Version
-v3.0.0 (2026-02-05)
+v4.2.0 (2026-02-06)
+
+### Changelog v4.2.0 — Signals SPA + AI Digests + Bot Navigation
+- **Signals integrated into SPA** — вкладка сайдбара вместо отдельной страницы
+  - Фильтры по типам (пробой, альфа, ротация, памп, дамп, секторы)
+  - Статистика (всего, за сегодня, пробои, альфа)
+  - Авто-обновление каждые 60 сек, lazy loading
+- **AI Digests persistence** — дайджесты сохраняются в `data/digests.json`
+  - GET `/api/ai/last-digests` — последние дайджесты
+  - При загрузке AI вкладки показывает последний дайджест с датой
+  - Автогенерация: daily 9:00 UTC, weekly пн 9:05 UTC
+  - Таймеры перезапускаются при рестарте сервера
+- **TG бот: кнопка "← Назад"** во всех подменю
+  - Settings, Alerts, Filters, Test, Help, Status — все имеют "← Назад"
+  - После toggle-действий (язык, тихие часы) — кнопка возврата
+  - `cmd_back` callback — возврат в стартовое меню с 6-кнопочной сеткой
+
+### Changelog v4.1.0 — Telegram Bot UX
+- **Full Russian localization** of all bot messages
+- Beautiful message structure with ├└ tree formatting
+- Unicode symbols instead of emojis (▲▼◆★◉◎↻◈▸●○⟐◑›→▷)
+- Smart price formatting (fmt_price, fmt_mcap, fmt_change)
+- Optimal default filters: rotation_out + sector_divergence OFF (noise reduction)
+- ALERT_LABELS and ALERT_HEADERS constants for consistent naming
+- Inline buttons in /start (2x3 grid)
+
+### Changelog v4.0.0 — Full Platform Upgrade
+- **Unified Filter Panel** (Phase 3.1)
+  - Filter by sectors, min change %, min volume, min mcap, momentum tier
+  - Filters persist in localStorage across sessions
+  - Applied to all views simultaneously
+  - Filter count badge on button
+- **Real-time Notifications** (Phase 3.2)
+  - Toast notifications in top-right corner via SSE
+  - Types: pump, dump, breakout, alpha, rotation, market state
+  - Per-type toggle, sound on/off, saved in localStorage
+  - `GET /api/events` SSE endpoint
+- **Backend Filter API** (Phase 3.3)
+  - `GET /api/filtered?sectors=...&minChange=...&minVolume=...&minMcap=...`
+  - SSE broadcast on new signals
+- **Telegram Bot v4.0** (Phase 2)
+  - Full rewrite with python-telegram-bot
+  - Commands: /start, /help, /status, /alerts, /settings, /filters, /test
+  - Admin panel: /admin with inline buttons, /broadcast
+  - Multi-user system: UserManager with per-user preferences
+  - Per-user filters: min_change_pct, coins whitelist/blacklist, quiet hours
+  - 10 alert types with individual toggles
+  - Deduplication (MD5 hash, 1h TTL)
+- **AI tab integrated into sidebar** (Phase 1)
+  - AI view as 5th sidebar tab (was separate ai.html)
+  - Chat, quick actions, digests in main SPA
+  - Lazy loading on first open
+- **Bug fixes** (Phase 0)
+  - CoinGecko API key moved to .env
+  - Search debounce (300ms)
+  - Modal closes on view switch
+  - Division by zero fix in momentum
+  - AI rate limiting (1 req/5s)
+  - Sentry error handler added
 
 ### Changelog v3.0.0 — AI Integration
 - **AI-powered Digests** (Groq Llama 3.3 70B)

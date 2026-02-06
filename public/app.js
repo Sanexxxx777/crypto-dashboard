@@ -16,7 +16,7 @@ const TRANSLATIONS = {
     telegram: 'Телеграм',
     setupManager: 'Setup Manager',
     signals: 'Сигналы',
-    aiAnalyst: 'AI Аналитик',
+    aiAnalyst: 'AI Ассистент',
     // Page titles
     marketOverview: 'Обзор рынка',
     performanceHeatmap: 'Тепловая карта',
@@ -95,7 +95,60 @@ const TRANSLATIONS = {
     faqQ3: 'Что такое Beta?',
     faqA3: 'Beta показывает во сколько раз токен в среднем растёт относительно BTC. Beta 2.5x означает, что если BTC вырос на 10%, токен в среднем вырастет на 25%.',
     faqQ4: 'Что такое Consistency?',
-    faqA4: 'Consistency показывает в каком проценте бычьих фаз токен входил в топ-20% лучших по росту. Высокая консистентность означает стабильную силу во время ралли.'
+    faqA4: 'Consistency показывает в каком проценте бычьих фаз токен входил в топ-20% лучших по росту. Высокая консистентность означает стабильную силу во время ралли.',
+    // AI
+    aiAnalyst: 'AI Ассистент',
+    aiChatTitle: 'Спроси AI о рынке',
+    aiHotSectors: 'Горячие секторы',
+    aiColdSectors: 'Холодные секторы',
+    aiTradingIdea: 'Торговая идея',
+    aiWelcome: 'Привет! Я AI-аналитик крипто-секторов. Спроси меня о секторах, трендах или торговых идеях.',
+    aiInputPlaceholder: 'Какие секторы сейчас растут?',
+    aiExamplesTitle: 'Примеры вопросов:',
+    aiExample1: 'Какой сектор сейчас самый горячий?',
+    aiExample2: 'Стоит ли входить в AI агентов?',
+    aiExample3: 'Какие мемкоины растут?',
+    aiExample4: 'Что происходит с DeFi?',
+    aiExample5: 'Куда ротируют капитал?',
+    aiDailyDigest: 'Дневной дайджест',
+    aiWeeklyDigest: 'Недельный дайджест',
+    aiGenerate: 'Сгенерировать',
+    aiDailyHint: 'Нажмите "Сгенерировать" для AI-обзора текущего дня',
+    aiWeeklyHint: 'Нажмите "Сгенерировать" для глубокого AI-анализа недели',
+    aiThinking: 'Думаю...',
+    aiAnalyzing: 'AI анализирует данные...',
+    aiGenerating: 'Генерация...',
+    // Signals
+    signalsTitle: 'Сигналы',
+    signalsSubtitle: 'История торговых сигналов',
+    signalsTotal: 'Всего сигналов',
+    signalsToday: 'За сегодня',
+    signalsBreakouts: 'Пробои',
+    signalsAlpha: 'Альфа',
+    sigAll: 'Все',
+    sigBreakout: 'Пробой',
+    sigAlpha: 'Альфа',
+    sigRotation: 'Ротация',
+    sigSurge: 'Памп',
+    sigDump: 'Дамп',
+    sigSectors: 'Секторы',
+    sigLoadMore: 'Загрузить ещё',
+    sigEmpty: 'Нет сигналов',
+    sigError: 'Ошибка загрузки сигналов',
+    // Filters & Notifications
+    filters: 'Фильтры',
+    notifications: 'Уведомления',
+    resetFilters: 'Сбросить',
+    showingAllTokens: 'Показаны все токены',
+    tokensMatched: 'токенов найдено',
+    enabled: 'Включены',
+    sound: 'Звук',
+    pumpAlerts: 'Памп-алерты',
+    dumpAlerts: 'Дамп-алерты',
+    breakoutAlerts: 'Пробой',
+    alphaDetection: 'Альфа-детекция',
+    sectorRotation: 'Ротация секторов',
+    marketStateAlerts: 'Состояние рынка'
   },
   en: {
     language: 'Language',
@@ -108,7 +161,7 @@ const TRANSLATIONS = {
     telegram: 'Telegram',
     setupManager: 'Setup Manager',
     signals: 'Signals',
-    aiAnalyst: 'AI Analyst',
+    aiAnalyst: 'AI Assistant',
     // Page titles
     marketOverview: 'Market Overview',
     performanceHeatmap: 'Performance Heatmap',
@@ -187,7 +240,60 @@ const TRANSLATIONS = {
     faqQ3: 'What is Beta?',
     faqA3: 'Beta shows how much a token grows relative to BTC on average. Beta 2.5x means if BTC grows 10%, the token grows 25% on average.',
     faqQ4: 'What is Consistency?',
-    faqA4: 'Consistency shows in what percentage of bull phases the token was in the top 20% performers. High consistency means stable strength during rallies.'
+    faqA4: 'Consistency shows in what percentage of bull phases the token was in the top 20% performers. High consistency means stable strength during rallies.',
+    // AI
+    aiAnalyst: 'AI Assistant',
+    aiChatTitle: 'Ask AI about the market',
+    aiHotSectors: 'Hot Sectors',
+    aiColdSectors: 'Cold Sectors',
+    aiTradingIdea: 'Trading Idea',
+    aiWelcome: 'Hello! I\'m the AI crypto-sector analyst. Ask me about sectors, trends, or trading ideas.',
+    aiInputPlaceholder: 'Which sectors are growing right now?',
+    aiExamplesTitle: 'Example questions:',
+    aiExample1: 'Which sector is hottest right now?',
+    aiExample2: 'Should I enter AI agents?',
+    aiExample3: 'Which memecoins are growing?',
+    aiExample4: 'What\'s happening with DeFi?',
+    aiExample5: 'Where is capital rotating?',
+    aiDailyDigest: 'Daily Digest',
+    aiWeeklyDigest: 'Weekly Digest',
+    aiGenerate: 'Generate',
+    aiDailyHint: 'Click "Generate" for an AI overview of the current day',
+    aiWeeklyHint: 'Click "Generate" for a deep AI analysis of the week',
+    aiThinking: 'Thinking...',
+    aiAnalyzing: 'AI analyzing data...',
+    aiGenerating: 'Generating...',
+    // Signals
+    signalsTitle: 'Signals',
+    signalsSubtitle: 'Trading signal history',
+    signalsTotal: 'Total signals',
+    signalsToday: 'Today',
+    signalsBreakouts: 'Breakouts',
+    signalsAlpha: 'Alpha',
+    sigAll: 'All',
+    sigBreakout: 'Breakout',
+    sigAlpha: 'Alpha',
+    sigRotation: 'Rotation',
+    sigSurge: 'Surge',
+    sigDump: 'Dump',
+    sigSectors: 'Sectors',
+    sigLoadMore: 'Load more',
+    sigEmpty: 'No signals',
+    sigError: 'Error loading signals',
+    // Filters & Notifications
+    filters: 'Filters',
+    notifications: 'Notifications',
+    resetFilters: 'Reset',
+    showingAllTokens: 'Showing all tokens',
+    tokensMatched: 'tokens matched',
+    enabled: 'Enabled',
+    sound: 'Sound',
+    pumpAlerts: 'Pump alerts',
+    dumpAlerts: 'Dump alerts',
+    breakoutAlerts: 'Breakout alerts',
+    alphaDetection: 'Alpha detection',
+    sectorRotation: 'Sector rotation',
+    marketStateAlerts: 'Market state'
   }
 };
 
@@ -210,6 +316,35 @@ class CryptoDashboard {
     this.bullPhases = null;
     this.fearGreedData = null;
 
+    // Debounce timer for search
+    this._searchDebounceTimer = null;
+
+    // Unified filters
+    this.filters = {
+      sectors: [],        // selected sector names (empty = all)
+      minChange: null,    // min absolute 24h change %
+      minVolume: null,    // min volume USD
+      minMcap: null,      // min market cap USD
+      tiers: []           // momentum tiers (S, A, B, etc.)
+    };
+
+    // Notification settings
+    this.notifSettings = {
+      enabled: true,
+      sound: false,
+      types: {
+        TOKEN_SURGE: true,
+        TOKEN_DUMP: true,
+        EARLY_BREAKOUT: true,
+        ALPHA: true,
+        ROTATION: true,
+        MARKET_STATE: false
+      }
+    };
+
+    // SSE
+    this._eventSource = null;
+
     this.init();
   }
 
@@ -218,9 +353,12 @@ class CryptoDashboard {
     this.loadTheme();
     this.loadSidebarState();
     this.loadLanguage();
+    this.loadFilters();
+    this.loadNotifSettings();
     this.loadData();
     this.loadMomentumData();
     this.startAutoRefresh();
+    this.connectSSE();
   }
 
   bindEvents() {
@@ -238,9 +376,12 @@ class CryptoDashboard {
     // Language toggle
     document.getElementById('langToggle').addEventListener('click', () => this.toggleLanguage());
 
-    // Search
+    // Search (with debounce)
     const searchInput = document.getElementById('searchInput');
-    searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(this._searchDebounceTimer);
+      this._searchDebounceTimer = setTimeout(() => this.handleSearch(e.target.value), 300);
+    });
     searchInput.addEventListener('focus', () => {
       if (searchInput.value.trim()) this.showSearchDropdown();
     });
@@ -270,11 +411,85 @@ class CryptoDashboard {
 
     // Keyboard shortcuts
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') this.closeModal();
+      if (e.key === 'Escape') {
+        this.closeModal();
+        this.closeAllPanels();
+      }
       if (e.key === 'r' && e.ctrlKey) {
         e.preventDefault();
         this.loadData();
       }
+    });
+
+    // Filter panel toggle
+    document.getElementById('filterToggleBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleFilterPanel();
+    });
+
+    // Notification panel toggle
+    document.getElementById('notifToggleBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleNotifPanel();
+    });
+
+    // Close panels on outside click
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.filter-panel') && !e.target.closest('.filter-toggle-btn')) {
+        document.getElementById('filterPanel').classList.add('hidden');
+        document.getElementById('filterToggleBtn').classList.remove('active');
+      }
+      if (!e.target.closest('.notif-panel') && !e.target.closest('.notif-toggle-btn')) {
+        document.getElementById('notifPanel').classList.add('hidden');
+        document.getElementById('notifToggleBtn').classList.remove('active');
+      }
+    });
+
+    // Filter reset
+    document.getElementById('filterResetBtn').addEventListener('click', () => this.resetFilters());
+
+    // Filter inputs
+    document.getElementById('filterMinChange').addEventListener('input', (e) => {
+      this.filters.minChange = parseFloat(e.target.value) || null;
+      this.applyFilters();
+    });
+    document.getElementById('filterMinVolume').addEventListener('change', (e) => {
+      this.filters.minVolume = parseFloat(e.target.value) || null;
+      this.applyFilters();
+    });
+    document.getElementById('filterMinMcap').addEventListener('change', (e) => {
+      this.filters.minMcap = parseFloat(e.target.value) || null;
+      this.applyFilters();
+    });
+
+    // Tier chips
+    document.querySelectorAll('.tier-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const tier = chip.dataset.tier;
+        chip.classList.toggle('active');
+        if (chip.classList.contains('active')) {
+          if (!this.filters.tiers.includes(tier)) this.filters.tiers.push(tier);
+        } else {
+          this.filters.tiers = this.filters.tiers.filter(t => t !== tier);
+        }
+        this.applyFilters();
+      });
+    });
+
+    // Notification settings
+    document.getElementById('notifEnabled').addEventListener('change', (e) => {
+      this.notifSettings.enabled = e.target.checked;
+      this.saveNotifSettings();
+    });
+    document.getElementById('notifSound').addEventListener('change', (e) => {
+      this.notifSettings.sound = e.target.checked;
+      this.saveNotifSettings();
+    });
+    document.querySelectorAll('.notif-type-item input').forEach(cb => {
+      cb.addEventListener('change', () => {
+        this.notifSettings.types[cb.dataset.type] = cb.checked;
+        this.saveNotifSettings();
+      });
     });
   }
 
@@ -309,8 +524,8 @@ class CryptoDashboard {
       // Calculate sector stats
       this.calculateSectorStats();
 
-      // Render current view
-      this.renderCurrentView();
+      // Apply filters if any active, then render
+      this.applyFilters();
       this.updateSummary();
       this.hideLoading();
       this.updateLastUpdate();
@@ -414,6 +629,9 @@ class CryptoDashboard {
         break;
       case 'momentum':
         this.renderMomentum();
+        break;
+      case 'ai':
+        // AI view is event-driven, no re-render needed
         break;
     }
   }
@@ -697,6 +915,9 @@ class CryptoDashboard {
   switchView(view) {
     this.currentView = view;
 
+    // Close modal if open
+    this.closeModal();
+
     // Update nav
     document.querySelectorAll('.nav-item').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.view === view);
@@ -710,6 +931,18 @@ class CryptoDashboard {
     document.getElementById('heatmapView').classList.toggle('hidden', view !== 'heatmap');
     document.getElementById('sectorsView').classList.toggle('hidden', view !== 'sectors');
     document.getElementById('momentumView').classList.toggle('hidden', view !== 'momentum');
+    document.getElementById('aiView').classList.toggle('hidden', view !== 'ai');
+    document.getElementById('signalsView').classList.toggle('hidden', view !== 'signals');
+
+    // Lazy-init AI on first open
+    if (view === 'ai' && !this._aiInitialized) {
+      this.initAI();
+    }
+
+    // Lazy-init Signals on first open
+    if (view === 'signals' && !this._signalsInitialized) {
+      this.initSignals();
+    }
 
     this.renderCurrentView();
   }
@@ -1090,10 +1323,13 @@ class CryptoDashboard {
       'overview': [this.t('marketOverview'), this.t('sectorsSubtitle')],
       'heatmap': [this.t('performanceHeatmap'), this.t('heatmapSubtitle')],
       'sectors': [this.t('allSectors'), this.t('allSectorsSubtitle')],
-      'momentum': [this.t('momentumTitle'), this.t('momentumSubtitle')]
+      'momentum': [this.t('momentumTitle'), this.t('momentumSubtitle')],
+      'ai': [this.t('aiAnalyst'), 'Groq Llama 3.3 70B'],
+      'signals': [this.t('signalsTitle'), this.t('signalsSubtitle')]
     };
-    document.getElementById('pageTitle').textContent = titles[this.currentView][0];
-    document.getElementById('pageSubtitle').textContent = titles[this.currentView][1];
+    const t = titles[this.currentView] || ['', ''];
+    document.getElementById('pageTitle').textContent = t[0];
+    document.getElementById('pageSubtitle').textContent = t[1];
   }
 
   // ==================== EXPORT ====================
@@ -1200,7 +1436,8 @@ class CryptoDashboard {
     document.getElementById('overviewView').classList.add('hidden');
     document.getElementById('heatmapView').classList.add('hidden');
     document.getElementById('sectorsView').classList.add('hidden');
-    
+    document.getElementById('aiView').classList.add('hidden');
+
     document.querySelector('.update-dot').classList.remove('error');
   }
 
@@ -1512,6 +1749,701 @@ class CryptoDashboard {
       F: 'tierF'
     };
     return this.t(descMap[tier] || 'tierF');
+  }
+
+  // ==================== AI ANALYST ====================
+
+  initAI() {
+    if (this._aiInitialized) return;
+    this._aiInitialized = true;
+    this._aiAvailable = false;
+
+    // Bind AI events
+    const sendBtn = document.getElementById('aiSendBtn');
+    const input = document.getElementById('aiQuestionInput');
+
+    sendBtn.addEventListener('click', () => this.sendAIMessage());
+    input.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') this.sendAIMessage();
+    });
+
+    // Quick action buttons
+    document.querySelectorAll('.ai-quick-btn').forEach(btn => {
+      btn.addEventListener('click', () => this.executeQuickAction(btn.dataset.aiAction));
+    });
+
+    // Example chips
+    document.querySelectorAll('.ai-example-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        input.value = chip.textContent;
+        input.focus();
+      });
+    });
+
+    // Digest buttons
+    document.getElementById('aiDailyBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.generateDigest('daily');
+    });
+    document.getElementById('aiWeeklyBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.generateDigest('weekly');
+    });
+
+    // Digest toggle (collapsible)
+    document.querySelectorAll('[data-digest-toggle]').forEach(header => {
+      header.addEventListener('click', (e) => {
+        if (e.target.closest('.ai-generate-btn')) return;
+        const card = header.closest('.ai-digest-card');
+        card.classList.toggle('collapsed');
+      });
+    });
+
+    // Check AI status
+    this.checkAIStatus();
+
+    // Load last saved digests
+    this.loadLastDigests();
+  }
+
+  async checkAIStatus() {
+    try {
+      const res = await fetch('/api/ai/status');
+      const data = await res.json();
+      this._aiAvailable = data.available;
+
+      const dot = document.getElementById('aiStatusDot');
+      const text = document.getElementById('aiStatusText');
+
+      if (this._aiAvailable) {
+        dot.classList.remove('offline');
+        text.textContent = `AI Online (${data.model || 'Llama 3.3'})`;
+      } else {
+        dot.classList.add('offline');
+        text.textContent = 'AI Offline';
+      }
+    } catch (e) {
+      document.getElementById('aiStatusDot').classList.add('offline');
+      document.getElementById('aiStatusText').textContent = 'AI unavailable';
+    }
+  }
+
+  async loadLastDigests() {
+    try {
+      const res = await fetch('/api/ai/last-digests');
+      const data = await res.json();
+
+      if (data.daily?.content) {
+        const el = document.getElementById('aiDailyContent');
+        const date = new Date(data.daily.timestamp).toLocaleDateString('ru-RU', {
+          day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+        el.textContent = data.daily.content;
+        el.classList.add('loaded');
+        const header = el.closest('.ai-digest-card')?.querySelector('.ai-digest-title span');
+        if (header) header.textContent = `${this.t('aiDailyDigest')} · ${date}`;
+      }
+
+      if (data.weekly?.content) {
+        const el = document.getElementById('aiWeeklyContent');
+        const date = new Date(data.weekly.timestamp).toLocaleDateString('ru-RU', {
+          day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+        el.textContent = data.weekly.content;
+        el.classList.add('loaded');
+        const header = el.closest('.ai-digest-card')?.querySelector('.ai-digest-title span');
+        if (header) header.textContent = `${this.t('aiWeeklyDigest')} · ${date}`;
+      }
+    } catch (e) {
+      console.log('[AI] No saved digests:', e.message);
+    }
+  }
+
+  addAIMessage(text, type = 'bot') {
+    const container = document.getElementById('aiChatMessages');
+    const msg = document.createElement('div');
+    msg.className = `ai-message ai-${type}`;
+    msg.innerHTML = `<div class="ai-message-content">${this.escapeHtml(text)}</div>`;
+    container.appendChild(msg);
+    container.scrollTop = container.scrollHeight;
+    return msg;
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  async sendAIMessage() {
+    const input = document.getElementById('aiQuestionInput');
+    const question = input.value.trim();
+    if (!question) return;
+
+    input.value = '';
+    this.addAIMessage(question, 'user');
+
+    const loadingMsg = this.addAIMessage(this.t('aiThinking'), 'bot loading');
+    document.getElementById('aiSendBtn').disabled = true;
+
+    try {
+      const res = await fetch('/api/ai/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question })
+      });
+
+      const data = await res.json();
+      loadingMsg.remove();
+
+      if (data.success) {
+        this.addAIMessage(data.answer, 'bot');
+      } else {
+        this.addAIMessage(`Error: ${data.error}`, 'bot error');
+      }
+    } catch (e) {
+      loadingMsg.remove();
+      this.addAIMessage(`Error: ${e.message}`, 'bot error');
+    }
+
+    document.getElementById('aiSendBtn').disabled = false;
+  }
+
+  executeQuickAction(type) {
+    const questions = {
+      hot: this.currentLang === 'ru'
+        ? 'Какие 3 сектора сейчас самые горячие и почему?'
+        : 'What are the 3 hottest sectors right now and why?',
+      cold: this.currentLang === 'ru'
+        ? 'Какие секторы сейчас холодные и стоит ли их покупать?'
+        : 'Which sectors are cold right now and should I buy them?',
+      idea: this.currentLang === 'ru'
+        ? 'Дай торговую идею на сегодня с обоснованием'
+        : 'Give me a trading idea for today with reasoning'
+    };
+    const input = document.getElementById('aiQuestionInput');
+    input.value = questions[type] || '';
+    this.sendAIMessage();
+  }
+
+  async generateDigest(type) {
+    const btn = document.getElementById(`ai${type === 'daily' ? 'Daily' : 'Weekly'}Btn`);
+    const content = document.getElementById(`ai${type === 'daily' ? 'Daily' : 'Weekly'}Content`);
+
+    btn.disabled = true;
+    btn.textContent = this.t('aiGenerating');
+    content.textContent = this.t('aiAnalyzing');
+    content.classList.remove('loaded');
+
+    try {
+      const res = await fetch(`/api/ai/${type}-digest`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        content.textContent = data.digest;
+        content.classList.add('loaded');
+        const now = new Date().toLocaleDateString('ru-RU', {
+          day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+        const titleKey = type === 'daily' ? 'aiDailyDigest' : 'aiWeeklyDigest';
+        const header = content.closest('.ai-digest-card')?.querySelector('.ai-digest-title span');
+        if (header) header.textContent = `${this.t(titleKey)} · ${now}`;
+      } else {
+        content.textContent = `Error: ${data.error}`;
+      }
+    } catch (e) {
+      content.textContent = `Error: ${e.message}`;
+    }
+
+    btn.disabled = false;
+    btn.textContent = this.t('aiGenerate');
+  }
+
+  // ==================== SIGNALS VIEW ====================
+
+  initSignals() {
+    if (this._signalsInitialized) return;
+    this._signalsInitialized = true;
+    this._signalFilter = 'all';
+    this._signalOffset = 0;
+    this._signalLimit = 20;
+    this._signalData = [];
+
+    // Signal type config
+    this._signalConfig = {
+      EARLY_BREAKOUT: { label: this.t('sigBreakout'), class: 'sig-breakout' },
+      ALPHA: { label: this.t('sigAlpha'), class: 'sig-alpha' },
+      ROTATION_IN: { label: this.t('sigRotation') + ' IN', class: 'sig-rotation' },
+      ROTATION_OUT: { label: this.t('sigRotation') + ' OUT', class: 'sig-rotation' },
+      TOKEN_SURGE: { label: this.t('sigSurge'), class: 'sig-surge' },
+      TOKEN_DUMP: { label: this.t('sigDump'), class: 'sig-dump' },
+      SECTOR_HOT: { label: this.t('sigSectors') + ' ▲', class: 'sig-sector' },
+      SECTOR_COLD: { label: this.t('sigSectors') + ' ▼', class: 'sig-sector' },
+      MARKET_BULL: { label: 'Bull', class: 'sig-market' },
+      MARKET_BEAR: { label: 'Bear', class: 'sig-market' },
+    };
+
+    // Filter buttons
+    document.querySelectorAll('.sig-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.sig-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        this._signalFilter = btn.dataset.sigFilter;
+        this._signalOffset = 0;
+        this.fetchSignals();
+      });
+    });
+
+    // Load more
+    document.getElementById('signalsLoadMore').addEventListener('click', () => {
+      this._signalOffset += this._signalLimit;
+      this.fetchSignals(true);
+    });
+
+    this.fetchSignals();
+
+    // Auto-refresh every 60 seconds
+    this._signalRefreshInterval = setInterval(() => {
+      if (this.currentView === 'signals') {
+        this._signalOffset = 0;
+        this.fetchSignals();
+      }
+    }, 60000);
+  }
+
+  async fetchSignals(append = false) {
+    try {
+      const typeParam = this._signalFilter !== 'all' ? `&type=${this._signalFilter}` : '';
+      const url = `/api/signals?limit=${this._signalLimit}&offset=${this._signalOffset}${typeParam}`;
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (append) {
+        this._signalData = [...this._signalData, ...data.signals];
+      } else {
+        this._signalData = data.signals;
+      }
+
+      this.renderSignals();
+      this.updateSignalStats(data);
+
+      document.getElementById('signalsLoadMore').classList.toggle(
+        'hidden', this._signalData.length >= data.total
+      );
+    } catch (e) {
+      console.error('[Signals] Error:', e);
+      document.getElementById('signalsList').innerHTML =
+        `<div class="signals-empty">${this.t('sigError')}</div>`;
+    }
+  }
+
+  renderSignals() {
+    const container = document.getElementById('signalsList');
+
+    if (this._signalData.length === 0) {
+      container.innerHTML = `<div class="signals-empty">${this.t('sigEmpty')}</div>`;
+      return;
+    }
+
+    container.innerHTML = this._signalData.map(signal => {
+      const config = this._signalConfig[signal.type] || { label: signal.type, class: 'sig-sector' };
+      const time = new Date(signal.timestamp);
+      const timeStr = this.formatSignalTime(time);
+      const change = signal.change_24h;
+      const changeStr = change ? `${change > 0 ? '+' : ''}${change.toFixed(1)}%` : '';
+      const changeClass = change > 0 ? 'positive' : change < 0 ? 'negative' : '';
+
+      return `
+        <div class="sig-card">
+          <div class="sig-badge ${config.class}">${config.label}</div>
+          <div class="sig-info">
+            <div class="sig-title">${signal.token || signal.sector || '—'}</div>
+            <div class="sig-details">
+              ${changeStr ? `<span class="sig-change ${changeClass}">${changeStr}</span>` : ''}
+              ${signal.sector ? `<span class="sig-sector-name">${signal.sector}</span>` : ''}
+              ${signal.mcap ? `<span class="sig-mcap">$${(signal.mcap / 1e6).toFixed(0)}M</span>` : ''}
+            </div>
+            ${signal.reason ? `<div class="sig-reason">${signal.reason}</div>` : ''}
+          </div>
+          <div class="sig-time">${timeStr}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  updateSignalStats(data) {
+    document.getElementById('sigTotalCount').textContent = data.total;
+
+    const today = new Date().toDateString();
+    const todayCount = this._signalData.filter(s =>
+      new Date(s.timestamp).toDateString() === today
+    ).length;
+    document.getElementById('sigTodayCount').textContent = todayCount;
+
+    const breakouts = this._signalData.filter(s => s.type === 'EARLY_BREAKOUT').length;
+    const alphas = this._signalData.filter(s => s.type === 'ALPHA').length;
+    document.getElementById('sigBreakoutCount').textContent = breakouts;
+    document.getElementById('sigAlphaCount').textContent = alphas;
+  }
+
+  formatSignalTime(date) {
+    const now = new Date();
+    const diff = now - date;
+    const mins = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (mins < 1) return this.currentLang === 'ru' ? 'только что' : 'just now';
+    if (mins < 60) return `${mins} ${this.currentLang === 'ru' ? 'мин' : 'min'}`;
+    if (hours < 24) return `${hours} ${this.currentLang === 'ru' ? 'ч' : 'h'}`;
+    if (days < 7) return `${days} ${this.currentLang === 'ru' ? 'дн' : 'd'}`;
+    return date.toLocaleDateString(this.currentLang === 'ru' ? 'ru-RU' : 'en-US');
+  }
+
+  // ==================== UNIFIED FILTERS ====================
+
+  toggleFilterPanel() {
+    const panel = document.getElementById('filterPanel');
+    const btn = document.getElementById('filterToggleBtn');
+    const isHidden = panel.classList.contains('hidden');
+
+    // Close notif panel
+    document.getElementById('notifPanel').classList.add('hidden');
+    document.getElementById('notifToggleBtn').classList.remove('active');
+
+    panel.classList.toggle('hidden');
+    btn.classList.toggle('active', isHidden);
+
+    if (isHidden) {
+      this.renderFilterSectorChips();
+    }
+  }
+
+  toggleNotifPanel() {
+    const panel = document.getElementById('notifPanel');
+    const btn = document.getElementById('notifToggleBtn');
+    const isHidden = panel.classList.contains('hidden');
+
+    // Close filter panel
+    document.getElementById('filterPanel').classList.add('hidden');
+    document.getElementById('filterToggleBtn').classList.remove('active');
+
+    panel.classList.toggle('hidden');
+    btn.classList.toggle('active', isHidden);
+  }
+
+  closeAllPanels() {
+    document.getElementById('filterPanel').classList.add('hidden');
+    document.getElementById('notifPanel').classList.add('hidden');
+    document.getElementById('filterToggleBtn').classList.remove('active');
+    document.getElementById('notifToggleBtn').classList.remove('active');
+  }
+
+  renderFilterSectorChips() {
+    const container = document.getElementById('filterSectorChips');
+    if (!container) return;
+
+    const sectorNames = Object.keys(SECTORS);
+    container.innerHTML = sectorNames.map(name => {
+      const active = this.filters.sectors.includes(name) ? 'active' : '';
+      const color = SECTOR_COLORS[name] || '#666';
+      return `<button class="filter-sector-chip ${active}" data-sector="${name}" style="border-color: ${active ? color : ''}; color: ${active ? color : ''}">${name}</button>`;
+    }).join('');
+
+    container.querySelectorAll('.filter-sector-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const sector = chip.dataset.sector;
+        if (this.filters.sectors.includes(sector)) {
+          this.filters.sectors = this.filters.sectors.filter(s => s !== sector);
+        } else {
+          this.filters.sectors.push(sector);
+        }
+        this.renderFilterSectorChips();
+        this.applyFilters();
+      });
+    });
+  }
+
+  applyFilters() {
+    this.saveFilters();
+    this.updateFilterCount();
+
+    // Build filtered sector stats
+    const hasAnyFilter = this.filters.sectors.length > 0 ||
+      this.filters.minChange !== null ||
+      this.filters.minVolume !== null ||
+      this.filters.minMcap !== null ||
+      this.filters.tiers.length > 0;
+
+    if (!hasAnyFilter) {
+      this.filteredSectorStats = null;
+    } else {
+      // Build momentum tier lookup
+      const tierLookup = {};
+      if (this.momentumData?.tokens) {
+        for (const t of this.momentumData.tokens) {
+          tierLookup[t.id] = t.tier;
+        }
+      }
+
+      this.filteredSectorStats = this.sectorStats.map(sector => {
+        // Sector filter
+        if (this.filters.sectors.length > 0 && !this.filters.sectors.includes(sector.name)) {
+          return null;
+        }
+
+        // Token-level filters
+        const filteredTokens = sector.tokens.filter(token => {
+          const change = token.price_change_percentage_24h_in_currency;
+          const volume = token.total_volume || 0;
+          const mcap = token.market_cap || 0;
+
+          if (this.filters.minChange !== null && (change === null || Math.abs(change) < this.filters.minChange)) return false;
+          if (this.filters.minVolume !== null && volume < this.filters.minVolume) return false;
+          if (this.filters.minMcap !== null && mcap < this.filters.minMcap) return false;
+          if (this.filters.tiers.length > 0) {
+            const tier = tierLookup[token.id];
+            if (!tier || !this.filters.tiers.includes(tier)) return false;
+          }
+          return true;
+        });
+
+        if (filteredTokens.length === 0) return null;
+
+        return { ...sector, tokens: filteredTokens };
+      }).filter(Boolean);
+    }
+
+    // Update result count
+    const totalTokens = this.filteredSectorStats
+      ? this.filteredSectorStats.reduce((sum, s) => sum + s.tokens.length, 0)
+      : this.sectorStats.reduce((sum, s) => sum + s.tokens.length, 0);
+    const countEl = document.getElementById('filterResultCount');
+    if (countEl) {
+      countEl.textContent = hasAnyFilter ? `${totalTokens} tokens matched` : 'Showing all tokens';
+    }
+
+    this.renderCurrentView();
+  }
+
+  resetFilters() {
+    this.filters = { sectors: [], minChange: null, minVolume: null, minMcap: null, tiers: [] };
+    document.getElementById('filterMinChange').value = '';
+    document.getElementById('filterMinVolume').value = '0';
+    document.getElementById('filterMinMcap').value = '0';
+    document.querySelectorAll('.tier-chip').forEach(c => c.classList.remove('active'));
+    this.renderFilterSectorChips();
+    this.applyFilters();
+  }
+
+  updateFilterCount() {
+    const count =
+      this.filters.sectors.length +
+      (this.filters.minChange !== null ? 1 : 0) +
+      (this.filters.minVolume !== null ? 1 : 0) +
+      (this.filters.minMcap !== null ? 1 : 0) +
+      this.filters.tiers.length;
+
+    const el = document.getElementById('filterCount');
+    if (count > 0) {
+      el.textContent = count;
+      el.classList.remove('hidden');
+    } else {
+      el.classList.add('hidden');
+    }
+  }
+
+  saveFilters() {
+    localStorage.setItem('dashboardFilters', JSON.stringify(this.filters));
+  }
+
+  loadFilters() {
+    try {
+      const saved = localStorage.getItem('dashboardFilters');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        this.filters = { ...this.filters, ...parsed };
+        // Restore UI state
+        if (this.filters.minChange) document.getElementById('filterMinChange').value = this.filters.minChange;
+        if (this.filters.minVolume) document.getElementById('filterMinVolume').value = this.filters.minVolume;
+        if (this.filters.minMcap) document.getElementById('filterMinMcap').value = this.filters.minMcap;
+        this.filters.tiers.forEach(tier => {
+          const chip = document.querySelector(`.tier-chip[data-tier="${tier}"]`);
+          if (chip) chip.classList.add('active');
+        });
+        this.updateFilterCount();
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  // ==================== NOTIFICATIONS ====================
+
+  saveNotifSettings() {
+    localStorage.setItem('notifSettings', JSON.stringify(this.notifSettings));
+  }
+
+  loadNotifSettings() {
+    try {
+      const saved = localStorage.getItem('notifSettings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        this.notifSettings = { ...this.notifSettings, ...parsed };
+        // Restore UI
+        document.getElementById('notifEnabled').checked = this.notifSettings.enabled;
+        document.getElementById('notifSound').checked = this.notifSettings.sound;
+        document.querySelectorAll('.notif-type-item input').forEach(cb => {
+          if (cb.dataset.type in this.notifSettings.types) {
+            cb.checked = this.notifSettings.types[cb.dataset.type];
+          }
+        });
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  showToast(title, detail, type = 'pump') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+
+    const iconMap = {
+      pump: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/></svg>',
+      dump: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 17 13.5 8.5 8.5 13.5 2 7"/></svg>',
+      breakout: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+      alpha: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>',
+      rotation: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-6.62-8.68"/></svg>',
+      market: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `
+      <div class="toast-icon ${type}">${iconMap[type] || iconMap.pump}</div>
+      <div class="toast-body">
+        <div class="toast-title">${title}</div>
+        <div class="toast-detail">${detail}</div>
+      </div>
+      <button class="toast-close">&times;</button>
+    `;
+
+    toast.querySelector('.toast-close').addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.removeToast(toast);
+    });
+
+    toast.addEventListener('click', () => this.removeToast(toast));
+
+    container.appendChild(toast);
+
+    // Auto-remove after 8s
+    setTimeout(() => this.removeToast(toast), 8000);
+
+    // Play sound if enabled
+    if (this.notifSettings.sound) {
+      this.playNotifSound();
+    }
+
+    // Keep max 5 toasts
+    while (container.children.length > 5) {
+      container.removeChild(container.firstChild);
+    }
+  }
+
+  removeToast(toast) {
+    if (!toast.parentNode) return;
+    toast.classList.add('removing');
+    setTimeout(() => toast.remove(), 300);
+  }
+
+  playNotifSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.value = 800;
+      gain.gain.value = 0.1;
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.stop(ctx.currentTime + 0.3);
+    } catch (e) { /* audio not supported */ }
+  }
+
+  // ==================== SSE (Server-Sent Events) ====================
+
+  connectSSE() {
+    if (this._eventSource) {
+      this._eventSource.close();
+    }
+
+    try {
+      this._eventSource = new EventSource('/api/events');
+
+      this._eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'signal') {
+            this.handleSignalEvent(data.signal);
+          }
+        } catch (e) { /* ignore parse errors */ }
+      };
+
+      this._eventSource.onopen = () => {
+        const dot = document.getElementById('notifDot');
+        if (dot) dot.classList.remove('hidden');
+      };
+
+      this._eventSource.onerror = () => {
+        const dot = document.getElementById('notifDot');
+        if (dot) dot.classList.add('hidden');
+        // Reconnect after 10s
+        setTimeout(() => this.connectSSE(), 10000);
+      };
+    } catch (e) {
+      console.error('SSE connection error:', e);
+    }
+  }
+
+  handleSignalEvent(signal) {
+    if (!this.notifSettings.enabled) return;
+
+    // Map signal type to notification type
+    const typeMap = {
+      TOKEN_SURGE: 'TOKEN_SURGE',
+      TOKEN_DUMP: 'TOKEN_DUMP',
+      EARLY_BREAKOUT: 'EARLY_BREAKOUT',
+      ALPHA: 'ALPHA',
+      ROTATION_IN: 'ROTATION',
+      ROTATION_OUT: 'ROTATION',
+      SECTOR_DIVERGENCE: 'ROTATION',
+      MARKET_STATE: 'MARKET_STATE'
+    };
+
+    const notifType = typeMap[signal.type] || 'TOKEN_SURGE';
+    if (!this.notifSettings.types[notifType]) return;
+
+    // Map to toast type
+    const toastTypeMap = {
+      TOKEN_SURGE: 'pump',
+      TOKEN_DUMP: 'dump',
+      EARLY_BREAKOUT: 'breakout',
+      ALPHA: 'alpha',
+      ROTATION_IN: 'rotation',
+      ROTATION_OUT: 'rotation',
+      SECTOR_DIVERGENCE: 'rotation',
+      MARKET_STATE: 'market'
+    };
+
+    const title = signal.token
+      ? `${signal.type.replace('_', ' ')}: ${signal.token}`
+      : `${signal.type.replace('_', ' ')}`;
+
+    const detail = signal.reason || (signal.sector ? `Sector: ${signal.sector}` : '');
+
+    this.showToast(title, detail, toastTypeMap[signal.type] || 'pump');
   }
 
   startAutoRefresh() {

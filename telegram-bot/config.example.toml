@@ -1,37 +1,49 @@
-# Crypto Sectors Alert Bot - Configuration Example
+# Crypto Sectors Alert Bot v4.0 - Configuration
 # Copy to config.toml and fill in your values
 
 [telegram]
-bot_token = "YOUR_BOT_TOKEN"   # От @BotFather
-chat_id = "YOUR_CHAT_ID"       # ID чата/канала для алертов
+bot_token = "YOUR_BOT_TOKEN"   # From @BotFather
+chat_id = "YOUR_CHAT_ID"       # Legacy chat_id (for --once mode)
 
 [api]
 url = "https://sectormap.dpdns.org/api/sheets"
 key = "crypto-dashboard-2024"
 
 [alerts]
-# Алерт если токен вырос на X% за 24ч
+# Token surge/dump thresholds (24h %)
 token_surge_pct = 15.0
-
-# Алерт если токен упал на X% за 24ч
 token_dump_pct = -15.0
 
-# Алерт если сектор отличается от рынка на X%
+# Early breakout: was flat 7d, now surging
+breakout_flat_max = 5.0
+breakout_surge_min = 8.0
+
+# Sector rotation: 7d vs 24h reversal
+rotation_7d_threshold = 3.0
+rotation_24h_threshold = 2.0
+
+# Alpha: token outperforms sector by X%
+alpha_min_pct = 10.0
+
+# Sector divergence: sector vs market average
 sector_diff_pct = 5.0
 
 [timing]
-# Интервал проверки в секундах (5 минут)
+# Check interval in seconds (5 min)
 check_interval = 300
 
-# Час UTC для ежедневного отчёта (9 = 12:00 MSK)
+# UTC hour for daily report (9 = 12:00 MSK)
 daily_report_hour = 9
 
+# Day of week for weekly report (0 = Monday)
+weekly_report_day = 0
+
 [filters]
-# Минимальный market cap для токенов ($50M)
+# Min market cap for token alerts ($50M)
 min_mcap_usd = 50000000
 
-# Игнорировать токены (не слать алерты)
+# Ignore specific tokens (no alerts)
 ignore_tokens = []
 
-# Игнорировать секторы
+# Ignore specific sectors
 ignore_sectors = []
