@@ -20,13 +20,16 @@ const PORTFOLIO_TOKENS = [
   'hyperliquid',        // HYPE
   'helium',             // HNT
   'pendle',             // PENDLE
-  'metis-token',        // METIS
-  'maple',              // SYRUP (CoinGecko ID: maple)
+  'meteora',            // MET (Meteora)
+  'syrup',              // SYRUP (Maple Finance)
   'virtual-protocol',  // VIRTUAL (CoinGecko ID: virtual-protocol)
-  'yearn-finance',      // YFI
+  'yield-basis',        // YB (Yield Basis)
   'centrifuge',         // CFG
   'giza',               // GIZA (AI Agents sector)
-  'apex-token-2'        // APEX (Derivatives sector)
+  'apex-token-2',       // APEX (Derivatives sector)
+  'grass',              // GRASS (DePIN sector)
+  'bittensor',          // TAO (Infrastructure sector)
+  'geodnet'             // GEOD (DePIN sector)
 ];
 
 // Scoring система для Rating
@@ -51,10 +54,15 @@ const SECTOR_COLORS = {
 // ============================================================================
 
 function onOpen() {
-  SpreadsheetApp.getUi().createMenu('🚀 Crypto')
-    .addItem('🔄 Обновить всё', 'updateAll')
-    .addItem('🗑️ Сброс рейтинга', 'resetRating')
-    .addToUi();
+  try {
+    SpreadsheetApp.getUi().createMenu('🚀 Crypto')
+      .addItem('🔄 Обновить всё', 'updateAll')
+      .addItem('🗑️ Сброс рейтинга', 'resetRating')
+      .addToUi();
+  } catch (e) {
+    // getUi() недоступен при ручном запуске из редактора — пропускаем
+    Logger.log('Menu skipped (no UI context)');
+  }
 
   // Автозапуск триггеров при открытии
   ensureTriggersExist();
@@ -243,7 +251,7 @@ function writePortfolioBlock(sheet, startRow, startCol, dataMap) {
 
       rows.push([
         c.symbol,
-        formatPrice(c.price),
+        c.price || 0,
         p24 != null ? (p24 >= 0 ? '+' : '') + p24.toFixed(1) + '%' : 'N/A',
         p7d != null ? (p7d >= 0 ? '+' : '') + p7d.toFixed(1) + '%' : 'N/A'
       ]);
@@ -280,6 +288,13 @@ function writePortfolioBlock(sheet, startRow, startCol, dataMap) {
   range.setFontSize(9);
   range.setFontWeight('bold');
   range.setVerticalAlignment('middle');
+
+  // Price column: числовой формат с $ (строки данных = startRow+2 до конца-1, без заголовков и AVG)
+  const dataRowCount = PORTFOLIO_TOKENS.length;
+  if (dataRowCount > 0) {
+    const priceRange = sheet.getRange(startRow + 2, startCol + 1, dataRowCount, 1);
+    priceRange.setNumberFormat('$#,##0.0000');
+  }
 
   // Merge заголовка
   sheet.getRange(startRow, startCol, 1, 4).merge().setHorizontalAlignment('center').setFontSize(11);

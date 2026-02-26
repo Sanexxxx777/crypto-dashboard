@@ -165,7 +165,7 @@ const SECTORS = {
   
   'DePIN': [
     'helium', 'iotex', 'hivemapper', 'grass', 'dimo',
-    'render-token', 'filecoin', 'theta-token', 'akash-network', 'nosana'
+    'render-token', 'filecoin', 'theta-token', 'akash-network', 'nosana', 'geodnet'
   ],
   
   'NFT Marketplaces': [

@@ -87,7 +87,7 @@ const SECTORS = {
   'Infrastructure': ['bittensor', 'render-token', 'internet-computer', 'the-graph', 'filecoin', 'arweave', 'akash-network', 'theta-token', 'livepeer', 'pocket-network'],
   'Oracles': ['chainlink', 'band-protocol', 'api3', 'dia-data', 'uma', 'tellor', 'nest-protocol', 'dos-network', 'razor-network', 'witnet'],
   'Bridges': ['wormhole', 'stargate-finance', 'layerzero', 'across-protocol', 'synapse-2', 'celer-network', 'hop-protocol', 'multichain', 'connext', 'router-protocol'],
-  'DePIN': ['helium', 'iotex', 'hivemapper', 'grass', 'dimo', 'render-token', 'filecoin', 'theta-token', 'akash-network', 'nosana'],
+  'DePIN': ['helium', 'iotex', 'hivemapper', 'grass', 'dimo', 'render-token', 'filecoin', 'theta-token', 'akash-network', 'nosana', 'geodnet'],
   'NFT Marketplaces': ['blur', 'looks-rare', 'x2y2', 'rarible', 'superrare', 'magic-eden', 'tensor', 'zora', 'foundation', 'manifold-finance'],
   'Gaming': ['immutable-x', 'gala', 'the-sandbox', 'axie-infinity', 'ronin', 'beam-2', 'illuvium', 'enjincoin', 'ultra', 'echelon-prime'],
   'Social': ['friend-tech', 'lens-protocol', 'cyberconnect', 'hooked-protocol', 'galxe', 'mask-network', 'status', 'rally-2', 'whale', 'chiliz'],
@@ -397,7 +397,7 @@ function calculateMomentumScores(bullPhases) {
     'Memes': ['dogecoin', 'shiba-inu', 'pepe', 'dogwifcoin', 'bonk', 'floki', 'brett-based', 'mog-coin', 'popcat', 'book-of-meme'],
     'AI Agents': ['artificial-superintelligence-alliance', 'virtual-protocol', 'ai16z', 'goatseus-maximus', 'fartcoin', 'griffain', 'zerebro', 'ai-rig-complex', 'cookie', 'aixbt', 'giza'],
     'Gaming': ['immutable-x', 'gala', 'the-sandbox', 'axie-infinity', 'ronin', 'beam-2', 'illuvium', 'enjincoin', 'ultra', 'echelon-prime'],
-    'DePIN': ['helium', 'iotex', 'hivemapper', 'grass', 'dimo', 'render-token', 'filecoin', 'theta-token', 'akash-network', 'nosana'],
+    'DePIN': ['helium', 'iotex', 'hivemapper', 'grass', 'dimo', 'render-token', 'filecoin', 'theta-token', 'akash-network', 'nosana', 'geodnet'],
     'Lending': ['aave', 'compound-governance-token', 'venus', 'radiant-capital', 'morpho', 'euler', 'benqi', 'kamino', 'silo-finance', 'spark'],
     'Derivatives': ['hyperliquid', 'gmx', 'dydx-chain', 'gains-network', 'synthetix-network-token', 'drift-protocol', 'vertex-protocol', 'aevo-exchange', 'ribbon-finance', 'lyra-finance', 'apex-token-2'],
     'Liquid Staking': ['lido-dao', 'rocket-pool', 'jito-governance-token', 'frax-share', 'ether-fi', 'ankr', 'stader', 'marinade', 'stride', 'stakewise']
@@ -569,6 +569,7 @@ async function fetchAndCacheAllData() {
         // Asset Management
         'yearn-finance', 'convex-finance', 'instadapp', 'sommelier', 'enzyme-finance',
         'rari-governance-token', 'badger-dao', 'harvest-finance', 'idle-finance', 'vesper-finance',
+        'yield-basis', 'meteora', 'syrup',
         // Infrastructure
         'bittensor', 'render-token', 'internet-computer', 'the-graph', 'filecoin',
         'arweave', 'akash-network', 'theta-token', 'livepeer', 'pocket-network',
@@ -579,7 +580,7 @@ async function fetchAndCacheAllData() {
         'wormhole', 'stargate-finance', 'layerzero', 'across-protocol', 'synapse-2',
         'celer-network', 'hop-protocol', 'multichain', 'connext', 'router-protocol',
         // DePIN
-        'helium', 'iotex', 'hivemapper', 'grass', 'dimo', 'nosana',
+        'helium', 'iotex', 'hivemapper', 'grass', 'dimo', 'nosana', 'geodnet',
         // NFT Marketplaces
         'blur', 'looks-rare', 'x2y2', 'rarible', 'superrare',
         'magic-eden', 'tensor', 'zora', 'foundation', 'manifold-finance',

@@ -77,6 +77,11 @@ STATE_FILE = SCRIPT_DIR / "state.json"
 
 # === ALERT TYPE LABELS ===
 
+# === CHANNEL & SIGNATURE ===
+REQUIRED_CHANNEL = "@driptrade3"
+AUTHOR_SIGNATURE = "\n\n@driptrade3"
+
+
 ALERT_LABELS = {
     "pump":               "▲ Памп (+15%)",
     "dump":               "▼ Дамп (−15%)",
@@ -794,11 +799,15 @@ class SectorAlertsBot:
         self.engine = AlertEngine(config, state)
         self.users = UserManager()
         self.app: Optional[Application] = None
+        self._last_start_msg: dict[int, int] = {}  # user_id → message_id
 
     async def send_to_user(self, user_id: int, text: str, parse_mode: str = "HTML") -> bool:
         if not self.app:
             return False
         try:
+            # Add signature to all outgoing messages
+            if parse_mode and AUTHOR_SIGNATURE not in text:
+                text += AUTHOR_SIGNATURE
             await self.app.bot.send_message(
                 chat_id=user_id,
                 text=text,
@@ -820,11 +829,54 @@ class SectorAlertsBot:
             await self.send_to_user(user_id, text)
             await asyncio.sleep(0.05)
 
+    # --- Subscription check ---
+
+    async def check_subscription(self, user_id: int) -> bool:
+        """Check if user is subscribed to required channel."""
+        if not REQUIRED_CHANNEL:
+            return True
+        if self.users.is_admin(user_id):
+            return True
+        try:
+            member = await self.app.bot.get_chat_member(REQUIRED_CHANNEL, user_id)
+            return member.status in ("member", "administrator", "creator")
+        except Exception as e:
+            logger.debug(f"Subscription check error for {user_id}: {e}")
+            return False
+
+    async def send_subscription_required(self, message, edit: bool = False):
+        """Send message asking user to subscribe to channel."""
+        text = (
+            "<b>Требуется подписка</b>\n\n"
+            f"Для использования бота подпишитесь на канал:\n"
+            f"{REQUIRED_CHANNEL}\n\n"
+            f"После подписки нажмите кнопку ниже."
+        )
+        keyboard = [[InlineKeyboardButton("✓ Проверить подписку", callback_data="check_subscription")]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        if edit:
+            await message.edit_text(text, reply_markup=reply_markup, parse_mode="HTML")
+        else:
+            await message.reply_text(text, reply_markup=reply_markup, parse_mode="HTML")
+
     # --- Commands ---
 
     async def cmd_start(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         user = update.effective_user
         self.users.register_user(user.id, user.username or "", user.first_name or "")
+
+        # Delete previous start message
+        prev_msg_id = self._last_start_msg.get(user.id)
+        if prev_msg_id:
+            try:
+                await update.message.chat.delete_message(prev_msg_id)
+            except Exception:
+                pass
+
+        # Check subscription
+        if not await self.check_subscription(user.id):
+            await self.send_subscription_required(update.message)
+            return
 
         text = (
             "◉ <b>Crypto Sectors Bot</b>\n\n"
@@ -848,9 +900,14 @@ class SectorAlertsBot:
             ],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await update.message.reply_text(text, reply_markup=reply_markup, parse_mode="HTML")
+        sent = await update.message.reply_text(text, reply_markup=reply_markup, parse_mode="HTML")
+        self._last_start_msg[user.id] = sent.message_id
 
     async def cmd_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
+        if not await self.check_subscription(update.effective_user.id):
+            await self.send_subscription_required(update.message)
+            return
+
         text = (
             "› <b>Справка</b>\n\n"
             "<b>Команды:</b>\n"
@@ -877,12 +934,17 @@ class SectorAlertsBot:
                 "  /admin — Панель управления\n"
                 "  /broadcast &lt;текст&gt; — Рассылка"
             )
+        text += AUTHOR_SIGNATURE
         await update.message.reply_text(text, parse_mode="HTML")
 
     async def cmd_status(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         user = update.effective_user
         if not self.users.is_registered(user.id):
             self.users.register_user(user.id, user.username or "", user.first_name or "")
+
+        if not await self.check_subscription(user.id):
+            await self.send_subscription_required(update.message)
+            return
 
         await update.message.reply_text("⏳ Загрузка данных...")
         status = await self.engine.get_market_status()
@@ -892,6 +954,10 @@ class SectorAlertsBot:
         user = update.effective_user
         if not self.users.is_registered(user.id):
             self.users.register_user(user.id, user.username or "", user.first_name or "")
+
+        if not await self.check_subscription(user.id):
+            await self.send_subscription_required(update.message)
+            return
 
         user_data = self.users.get_user(user.id)
         alert_types = user_data.get("alert_types", {})
@@ -923,6 +989,10 @@ class SectorAlertsBot:
         user = update.effective_user
         if not self.users.is_registered(user.id):
             self.users.register_user(user.id, user.username or "", user.first_name or "")
+
+        if not await self.check_subscription(user.id):
+            await self.send_subscription_required(update.message)
+            return
 
         user_data = self.users.get_user(user.id)
         quiet = user_data.get("quiet_hours", {})
@@ -958,6 +1028,10 @@ class SectorAlertsBot:
         user = update.effective_user
         if not self.users.is_registered(user.id):
             self.users.register_user(user.id, user.username or "", user.first_name or "")
+
+        if not await self.check_subscription(user.id):
+            await self.send_subscription_required(update.message)
+            return
 
         args = context.args or []
 
@@ -1039,6 +1113,10 @@ class SectorAlertsBot:
         if not self.users.is_registered(user.id):
             self.users.register_user(user.id, user.username or "", user.first_name or "")
 
+        if not await self.check_subscription(user.id):
+            await self.send_subscription_required(update.message)
+            return
+
         test_msg = (
             "▷ <b>Тестовый алерт</b>\n\n"
             "▲ <b>BONK +18.5%</b> · Memes\n"
@@ -1090,6 +1168,43 @@ class SectorAlertsBot:
         await query.answer()
         data = query.data
         user_id = query.from_user.id
+
+        # --- Subscription check callback ---
+        if data == "check_subscription":
+            if await self.check_subscription(user_id):
+                # Subscription verified — show welcome menu
+                text = (
+                    "◉ <b>Crypto Sectors Bot</b>\n\n"
+                    "Мониторинг 20 секторов и 173 токенов.\n"
+                    "Алерты о пампах, дампах, ротациях и альфе.\n\n"
+                    "Все алерты включены по умолчанию.\n"
+                    "Настрой через /alerts и /filters."
+                )
+                keyboard = [
+                    [
+                        InlineKeyboardButton("◈ Обзор рынка", callback_data="cmd_status"),
+                        InlineKeyboardButton("◉ Алерты", callback_data="cmd_alerts"),
+                    ],
+                    [
+                        InlineKeyboardButton("◎ Фильтры", callback_data="cmd_filters"),
+                        InlineKeyboardButton("⟐ Настройки", callback_data="cmd_settings"),
+                    ],
+                    [
+                        InlineKeyboardButton("▷ Тест", callback_data="cmd_test"),
+                        InlineKeyboardButton("› Справка", callback_data="cmd_help"),
+                    ],
+                ]
+                await query.edit_message_text(
+                    text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="HTML"
+                )
+            else:
+                await query.answer("Вы ещё не подписаны на канал", show_alert=True)
+            return
+
+        # --- Subscription gate for all other callbacks ---
+        if not await self.check_subscription(user_id):
+            await self.send_subscription_required(query.message, edit=True)
+            return
 
         # --- Start menu buttons ---
         if data == "cmd_back":
@@ -1221,6 +1336,7 @@ class SectorAlertsBot:
                 "  ◉ Смена фазы — bull/bear переход\n"
                 "  ▸ Отчёты — AI-обзоры утром\n\n"
                 "→ Дашборд: sectormap.dpdns.org"
+                f"{AUTHOR_SIGNATURE}"
             )
             keyboard = [[InlineKeyboardButton("← Назад", callback_data="cmd_back")]]
             await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode="HTML")
